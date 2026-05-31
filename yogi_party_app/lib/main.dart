@@ -494,7 +494,7 @@ class _MainShellState extends State<MainShell> {
         selectedIndex: _tabIndex,
         indicatorColor: YogiColors.peachSoft,
         backgroundColor: YogiColors.paper,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         onDestinationSelected: (index) => setState(() => _tabIndex = index),
         destinations: const [
           NavigationDestination(
