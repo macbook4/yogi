@@ -328,6 +328,23 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
+  void _moveToCurrentLocation() {
+    setState(() {
+      _focusedPoi = const PartyPoi(
+        id: 'current-location',
+        name: '내 위치 주변',
+        address: '서울 성동구 성수동 현재 위치 기준',
+        category: '현재 위치',
+        position: Offset(.5, .5),
+        lat: 37.5446,
+        lng: 127.0558,
+        tint: YogiColors.mint,
+        hexColor: '#3AC7A8',
+        anchorSource: 'coordinate',
+      );
+    });
+  }
+
   LiveParty _createPartyAt(
     PartyPoi poi, {
     required String title,
@@ -437,6 +454,7 @@ class _MainShellState extends State<MainShell> {
             : _partiesAt(_focusedPoi!),
         onPoiTap: (poi) => setState(() => _focusedPoi = poi),
         onMapLongPress: _selectCoordinateAnchor,
+        onCurrentLocationTap: _moveToCurrentLocation,
         onCreateParty: _createPartyAt,
         onOpenCreatedParty: _openCreatedParty,
         onJoinParty: _joinParty,
@@ -483,6 +501,7 @@ class HomeMapPage extends StatelessWidget {
     required this.partiesAtFocusedPoi,
     required this.onPoiTap,
     required this.onMapLongPress,
+    required this.onCurrentLocationTap,
     required this.onCreateParty,
     required this.onOpenCreatedParty,
     required this.onJoinParty,
@@ -498,6 +517,7 @@ class HomeMapPage extends StatelessWidget {
     required String address,
   })
   onMapLongPress;
+  final VoidCallback onCurrentLocationTap;
   final LiveParty Function(
     PartyPoi poi, {
     required String title,
@@ -544,7 +564,112 @@ class HomeMapPage extends StatelessWidget {
             ),
           ),
         ),
+        Positioned(
+          top: 142,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: SearchMapAreaButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('현재 지도 영역의 파티를 다시 불러왔어요.')),
+                );
+              },
+            ),
+          ),
+        ),
+        Positioned(
+          right: 18,
+          bottom: focusedPoi == null ? 246 : 348,
+          child: CurrentLocationMapButton(
+            onPressed: () {
+              onCurrentLocationTap();
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('내 위치 주변으로 이동했어요.')));
+            },
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class SearchMapAreaButton extends StatelessWidget {
+  const SearchMapAreaButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: '현 위치로 검색',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onPressed,
+          child: Ink(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: YogiColors.line),
+              borderRadius: BorderRadius.circular(999),
+              boxShadow: softShadow(),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.refresh, size: 17, color: YogiColors.mint),
+                SizedBox(width: 6),
+                Text(
+                  '현 위치로 검색',
+                  style: TextStyle(
+                    color: YogiColors.ink,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CurrentLocationMapButton extends StatelessWidget {
+  const CurrentLocationMapButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: '내 위치로 이동',
+      child: Semantics(
+        button: true,
+        label: '내 위치로 이동',
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: onPressed,
+            child: Ink(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: YogiColors.line),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: softShadow(),
+              ),
+              child: const Icon(Icons.my_location, color: YogiColors.ink),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
