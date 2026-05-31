@@ -47,6 +47,16 @@ class YogiColors {
   static const violet = Color(0xFF8368FF);
 }
 
+class YogiMotion {
+  static const tap = Duration(milliseconds: 150);
+  static const cardRise = Duration(milliseconds: 420);
+  static const sheetSnap = Duration(milliseconds: 360);
+  static const successPop = Duration(milliseconds: 900);
+  static const playful = Cubic(.2, 1.25, .28, 1);
+  static const softSnap = Cubic(.2, 1.08, .28, 1);
+  static const pinBounce = Cubic(.2, 1.45, .28, 1);
+}
+
 class PartyPoi {
   const PartyPoi({
     required this.id,
@@ -246,7 +256,7 @@ class _MainShellState extends State<MainShell> {
       visibility: 'private',
       joinPolicy: 'approval_required',
       accessLabel: '대학교 인증',
-      meetupStatus: '지금 논의 중',
+      meetupStatus: 'live',
       createdAgo: '12분 전',
       memberCount: 3,
       onlineCount: 1,
@@ -623,41 +633,34 @@ class CurrentLocationOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: '내 현재 위치와 대략적인 정확도 반경',
-      child: SizedBox(
-        width: 104,
-        height: 104,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 104,
-              height: 104,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: YogiColors.blue.withValues(alpha: .12),
-                border: Border.all(
-                  color: YogiColors.blue.withValues(alpha: .24),
-                ),
-              ),
-            ),
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: YogiColors.blue,
-                border: Border.all(color: Colors.white, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: YogiColors.ink.withValues(alpha: .18),
-                    blurRadius: 12,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      child: const YogiPulse(
+        size: 104,
+        color: YogiColors.blue,
+        child: _CurrentLocationDot(),
+      ),
+    );
+  }
+}
+
+class _CurrentLocationDot extends StatelessWidget {
+  const _CurrentLocationDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: YogiColors.blue,
+        border: Border.all(color: Colors.white, width: 4),
+        boxShadow: [
+          BoxShadow(
+            color: YogiColors.ink.withValues(alpha: .18),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
     );
   }
@@ -672,33 +675,35 @@ class SearchMapAreaButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: '현 위치로 검색',
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: onPressed,
-          child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: YogiColors.line),
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: softShadow(),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.refresh, size: 17, color: YogiColors.mint),
-                SizedBox(width: 6),
-                Text(
-                  '현 위치로 검색',
-                  style: TextStyle(
-                    color: YogiColors.ink,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
+      child: TapSquish(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: onPressed,
+            child: Ink(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: YogiColors.line),
+                borderRadius: BorderRadius.circular(999),
+                boxShadow: softShadow(),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.refresh, size: 17, color: YogiColors.mint),
+                  SizedBox(width: 6),
+                  Text(
+                    '현 위치로 검색',
+                    style: TextStyle(
+                      color: YogiColors.ink,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -719,21 +724,23 @@ class CurrentLocationMapButton extends StatelessWidget {
       child: Semantics(
         button: true,
         label: '내 위치로 이동',
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: onPressed,
-            child: Ink(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: YogiColors.line),
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: softShadow(),
+        child: TapSquish(
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: onPressed,
+              child: Ink(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: YogiColors.line),
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: softShadow(),
+                ),
+                child: const Icon(Icons.my_location, color: YogiColors.ink),
               ),
-              child: const Icon(Icons.my_location, color: YogiColors.ink),
             ),
           ),
         ),
@@ -973,76 +980,79 @@ class MapPin extends StatelessWidget {
     return AnimatedScale(
       duration: const Duration(milliseconds: 160),
       scale: focused ? 1.08 : 1,
-      child: Tooltip(
-        message: poi.name,
-        child: Semantics(
-          button: true,
-          label: '${poi.name} 위치, 선택하면 장소명과 열린 파티 목록 표시',
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: onTap,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: added ? YogiColors.ink : poi.tint,
-                      border: Border.all(
-                        color: focused ? YogiColors.yellow : Colors.white,
-                        width: 3,
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(22),
-                        topRight: Radius.circular(22),
-                        bottomRight: Radius.circular(22),
-                        bottomLeft: Radius.circular(7),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: YogiColors.ink.withValues(alpha: .16),
-                          blurRadius: 18,
-                          offset: const Offset(0, 10),
+      child: PinBounce(
+        playKey: '${poi.id}-$focused-$added',
+        child: Tooltip(
+          message: poi.name,
+          child: Semantics(
+            button: true,
+            label: '${poi.name} 위치, 선택하면 장소명과 열린 파티 목록 표시',
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: onTap,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: added ? YogiColors.ink : poi.tint,
+                        border: Border.all(
+                          color: focused ? YogiColors.yellow : Colors.white,
+                          width: 3,
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.bookmark,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  if (added)
-                    const Positioned(
-                      right: -6,
-                      top: -8,
-                      child: CircleAvatar(
-                        radius: 11,
-                        backgroundColor: YogiColors.yellow,
-                        child: Icon(
-                          Icons.check,
-                          size: 14,
-                          color: YogiColors.ink,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(22),
+                          topRight: Radius.circular(22),
+                          bottomRight: Radius.circular(22),
+                          bottomLeft: Radius.circular(7),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: YogiColors.ink.withValues(alpha: .16),
+                            blurRadius: 18,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.bookmark,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
-                  if (focused)
-                    Positioned(
-                      left: 16,
-                      bottom: -5,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: YogiColors.yellow,
-                          shape: BoxShape.circle,
+                    if (added)
+                      const Positioned(
+                        right: -6,
+                        top: -8,
+                        child: CircleAvatar(
+                          radius: 11,
+                          backgroundColor: YogiColors.yellow,
+                          child: Icon(
+                            Icons.check,
+                            size: 14,
+                            color: YogiColors.ink,
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                    if (focused)
+                      Positioned(
+                        left: 16,
+                        bottom: -5,
+                        child: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: const BoxDecoration(
+                            color: YogiColors.yellow,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1254,84 +1264,93 @@ class _LocationPartySheetState extends State<LocationPartySheet> {
         setState(() => _dragOffset = 0);
       },
       child: AnimatedSlide(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
+        duration: YogiMotion.sheetSnap,
+        curve: YogiMotion.softSnap,
         offset: Offset(0, -_dragOffset / 620),
-        child: DecoratedBox(
-          decoration: softCardDecoration(),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SheetHandle(),
-                Eyebrow(
-                  '${widget.poi.category} · 현재 열린 파티 ${widget.parties.length}개',
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.poi.name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    height: 1.16,
-                    fontWeight: FontWeight.w900,
-                    color: YogiColors.ink,
+        child: MotionEntry(
+          offset: const Offset(0, .18),
+          duration: YogiMotion.sheetSnap,
+          curve: YogiMotion.softSnap,
+          child: DecoratedBox(
+            decoration: softCardDecoration(),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SheetHandle(),
+                  Eyebrow(
+                    '${widget.poi.category} · 현재 열린 파티 ${widget.parties.length}개',
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  widget.poi.address,
-                  style: const TextStyle(
-                    color: YogiColors.muted,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.poi.name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      height: 1.16,
+                      fontWeight: FontWeight.w900,
+                      color: YogiColors.ink,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                if (widget.parties.isEmpty)
-                  const Text(
-                    '아직 이 위치에 열린 파티가 없습니다.',
+                  const SizedBox(height: 5),
+                  Text(
+                    widget.poi.address,
                     style: TextStyle(
                       color: YogiColors.muted,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                if (widget.parties.isNotEmpty)
-                  ...widget.parties.map(
-                    (party) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: LocationPartyCard(
-                        party: party,
-                        onJoin: widget.onJoinParty,
+                  const SizedBox(height: 14),
+                  if (widget.parties.isEmpty)
+                    const EmptyNudge(
+                      child: Text(
+                        '아직 이 위치에 열린 파티가 없습니다.',
+                        style: TextStyle(
+                          color: YogiColors.muted,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  if (widget.parties.isNotEmpty)
+                    ...widget.parties.map(
+                      (party) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: LocationPartyCard(
+                          party: party,
+                          onJoin: widget.onJoinParty,
+                        ),
+                      ),
+                    ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TapSquish(
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: YogiColors.ink,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => PartyCreateModal(
+                            poi: widget.poi,
+                            onCreateParty: widget.onCreateParty,
+                            onOpenCreatedParty: widget.onOpenCreatedParty,
+                          ),
+                        ),
+                        icon: const Icon(Icons.add_location_alt),
+                        label: const Text('이 위치에 파티 만들기'),
                       ),
                     ),
                   ),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: YogiColors.ink,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed: () => showModalBottomSheet<void>(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (_) => PartyCreateModal(
-                        poi: widget.poi,
-                        onCreateParty: widget.onCreateParty,
-                        onOpenCreatedParty: widget.onOpenCreatedParty,
-                      ),
-                    ),
-                    icon: const Icon(Icons.add_location_alt),
-                    label: const Text('이 위치에 파티 만들기'),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1363,84 +1382,84 @@ class LocationPartyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPrivate = party.visibility == 'private';
 
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: YogiColors.surface,
-        border: Border.all(color: YogiColors.line),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PartyProfileImage(icon: party.profileIcon, size: 38),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            party.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 15,
-                              color: YogiColors.ink,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${party.memberCount}',
+    return MotionEntry(
+      offset: const Offset(0, .1),
+      child: Container(
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: YogiColors.surface,
+          border: Border.all(color: YogiColors.line),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PartyProfileImage(icon: party.profileIcon, size: 38),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          party.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: YogiColors.muted,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15,
+                            color: YogiColors.ink,
                           ),
                         ),
-                        const SizedBox(width: 5),
-                        PartyMetaIcon(
-                          icon: isPrivate
-                              ? Icons.lock_outline
-                              : Icons.lock_open_outlined,
-                          label: isPrivate ? '비공개파티' : '공개파티',
-                        ),
-                        if (party.accessLabel != '제한 없음') ...[
-                          const SizedBox(width: 4),
-                          PartyMetaIcon(
-                            icon: party.accessLabel.contains('직장')
-                                ? Icons.work_outline
-                                : Icons.school_outlined,
-                            label: party.accessLabel.contains('직장')
-                                ? '직장 인증 사용자만 허용'
-                                : '내가 인증한 대학교만 허용',
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 7),
-                    Text(
-                      '${party.createdAgo} · ${party.meetupStatus} · ${party.lastMessage}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: YogiColors.muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
                       ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${party.memberCount}',
+                        style: const TextStyle(
+                          color: YogiColors.muted,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      PartyMetaIcon(
+                        icon: isPrivate
+                            ? Icons.lock_outline
+                            : Icons.lock_open_outlined,
+                        label: isPrivate ? '비공개파티' : '공개파티',
+                      ),
+                      if (party.accessLabel != '제한 없음') ...[
+                        const SizedBox(width: 4),
+                        PartyMetaIcon(
+                          icon: party.accessLabel.contains('직장')
+                              ? Icons.work_outline
+                              : Icons.school_outlined,
+                          label: party.accessLabel.contains('직장')
+                              ? '직장 인증 사용자만 허용'
+                              : '내가 인증한 대학교만 허용',
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    '${party.createdAgo} · ${party.meetupStatus} · ${party.lastMessage}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: YogiColors.muted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              FilledButton(
+            ),
+            const SizedBox(width: 8),
+            TapSquish(
+              child: FilledButton(
                 style: FilledButton.styleFrom(
                   backgroundColor: party.requested
                       ? YogiColors.line
@@ -1457,9 +1476,9 @@ class LocationPartyCard extends StatelessWidget {
                 onPressed: party.requested ? null : () => onJoin(party),
                 child: Text(_actionLabel),
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1901,20 +1920,29 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              ChoiceChip(
-                label: const Text('제한 없음'),
+              ChipMagnet(
                 selected: _accessLabel == '제한 없음',
-                onSelected: (_) => setState(() => _accessLabel = '제한 없음'),
+                child: ChoiceChip(
+                  label: const Text('제한 없음'),
+                  selected: _accessLabel == '제한 없음',
+                  onSelected: (_) => setState(() => _accessLabel = '제한 없음'),
+                ),
               ),
-              ChoiceChip(
-                label: const Text('대학교 인증'),
+              ChipMagnet(
                 selected: _accessLabel == '대학교 인증',
-                onSelected: (_) => setState(() => _accessLabel = '대학교 인증'),
+                child: ChoiceChip(
+                  label: const Text('대학교 인증'),
+                  selected: _accessLabel == '대학교 인증',
+                  onSelected: (_) => setState(() => _accessLabel = '대학교 인증'),
+                ),
               ),
-              ChoiceChip(
-                label: const Text('직장 인증'),
+              ChipMagnet(
                 selected: _accessLabel == '직장 인증',
-                onSelected: (_) => setState(() => _accessLabel = '직장 인증'),
+                child: ChoiceChip(
+                  label: const Text('직장 인증'),
+                  selected: _accessLabel == '직장 인증',
+                  onSelected: (_) => setState(() => _accessLabel = '직장 인증'),
+                ),
               ),
             ],
           ),
@@ -2078,6 +2106,7 @@ class NeighborhoodInviteList extends StatefulWidget {
 
 class _NeighborhoodInviteListState extends State<NeighborhoodInviteList> {
   final Set<String> _invited = {};
+  String? _lastInvited;
 
   static const _candidates = [
     _InviteCandidate(name: '수빈', area: '성수2가 · 최근 온라인', online: true),
@@ -2116,6 +2145,22 @@ class _NeighborhoodInviteListState extends State<NeighborhoodInviteList> {
                 ),
               ),
             ],
+          ),
+          AnimatedSwitcher(
+            duration: YogiMotion.successPop,
+            switchInCurve: YogiMotion.playful,
+            switchOutCurve: Curves.easeOut,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            ),
+            child: _lastInvited == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(_lastInvited),
+                    padding: const EdgeInsets.only(top: 10),
+                    child: SuccessPopToast(text: '$_lastInvited님 초대 완료!'),
+                  ),
           ),
           const SizedBox(height: 10),
           if (candidates.isEmpty)
@@ -2187,12 +2232,26 @@ class _NeighborhoodInviteListState extends State<NeighborhoodInviteList> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    OutlinedButton(
-                      onPressed: _invited.contains(candidate.name)
-                          ? null
-                          : () => setState(() => _invited.add(candidate.name)),
-                      child: Text(
-                        _invited.contains(candidate.name) ? '완료' : '초대',
+                    TapSquish(
+                      child: OutlinedButton(
+                        onPressed: _invited.contains(candidate.name)
+                            ? null
+                            : () {
+                                setState(() {
+                                  _invited.add(candidate.name);
+                                  _lastInvited = candidate.name;
+                                });
+                                Future<void>.delayed(YogiMotion.successPop, () {
+                                  if (!mounted ||
+                                      _lastInvited != candidate.name) {
+                                    return;
+                                  }
+                                  setState(() => _lastInvited = null);
+                                });
+                              },
+                        child: Text(
+                          _invited.contains(candidate.name) ? '완료' : '초대',
+                        ),
                       ),
                     ),
                   ],
@@ -3805,6 +3864,356 @@ class PageHeader extends StatelessWidget {
   }
 }
 
+class TapSquish extends StatefulWidget {
+  const TapSquish({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<TapSquish> createState() => _TapSquishState();
+}
+
+class _TapSquishState extends State<TapSquish> {
+  bool _pressed = false;
+
+  void _setPressed(bool pressed) {
+    if (_pressed == pressed) return;
+    setState(() => _pressed = pressed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: (_) => _setPressed(true),
+      onPointerUp: (_) => _setPressed(false),
+      onPointerCancel: (_) => _setPressed(false),
+      child: AnimatedScale(
+        duration: YogiMotion.tap,
+        curve: YogiMotion.playful,
+        scale: _pressed ? .94 : 1,
+        child: AnimatedSlide(
+          duration: YogiMotion.tap,
+          curve: YogiMotion.playful,
+          offset: _pressed ? const Offset(0, .04) : Offset.zero,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+class MotionEntry extends StatefulWidget {
+  const MotionEntry({
+    super.key,
+    required this.child,
+    this.offset = const Offset(0, .16),
+    this.duration = YogiMotion.cardRise,
+    this.curve = YogiMotion.playful,
+  });
+
+  final Widget child;
+  final Offset offset;
+  final Duration duration;
+  final Curve curve;
+
+  @override
+  State<MotionEntry> createState() => _MotionEntryState();
+}
+
+class _MotionEntryState extends State<MotionEntry>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late Animation<double> _fade;
+  late Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _configureAnimations();
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant MotionEntry oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.offset != widget.offset ||
+        oldWidget.curve != widget.curve ||
+        oldWidget.duration != widget.duration) {
+      _controller.duration = widget.duration;
+      _configureAnimations();
+    }
+  }
+
+  void _configureAnimations() {
+    final curved = CurvedAnimation(parent: _controller, curve: widget.curve);
+    _fade = Tween<double>(begin: 0, end: 1).animate(curved);
+    _slide = Tween<Offset>(
+      begin: widget.offset,
+      end: Offset.zero,
+    ).animate(curved);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(position: _slide, child: widget.child),
+    );
+  }
+}
+
+class PinBounce extends StatefulWidget {
+  const PinBounce({super.key, required this.playKey, required this.child});
+
+  final Object playKey;
+  final Widget child;
+
+  @override
+  State<PinBounce> createState() => _PinBounceState();
+}
+
+class _PinBounceState extends State<PinBounce>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 620),
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: YogiMotion.pinBounce,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant PinBounce oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.playKey != widget.playKey) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      child: widget.child,
+      builder: (context, child) {
+        final t = _animation.value;
+        final y = t < .64 ? -18 * (t / .64) : -18 + 18 * ((t - .64) / .36);
+        final scaleX = t < .62 ? 1 - .05 * t : 1 + .05 * (1 - t);
+        final scaleY = t < .62 ? 1 + .08 * t : 1 - .06 * (1 - t);
+        return Transform.translate(
+          offset: Offset(0, y),
+          child: Transform.scale(scaleX: scaleX, scaleY: scaleY, child: child),
+        );
+      },
+    );
+  }
+}
+
+class YogiPulse extends StatefulWidget {
+  const YogiPulse({
+    super.key,
+    required this.size,
+    required this.color,
+    required this.child,
+  });
+
+  final double size;
+  final Color color;
+  final Widget child;
+
+  @override
+  State<YogiPulse> createState() => _YogiPulseState();
+}
+
+class _YogiPulseState extends State<YogiPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _controller,
+        child: Center(child: widget.child),
+        builder: (context, child) {
+          final t = _controller.value;
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.scale(
+                scale: .45 + (1.1 * t),
+                child: Opacity(
+                  opacity: (.7 * (1 - t)).clamp(0, 1),
+                  child: Container(
+                    width: widget.size,
+                    height: widget.size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.color.withValues(alpha: .12),
+                      border: Border.all(
+                        color: widget.color.withValues(alpha: .24),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              child!,
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ChipMagnet extends StatelessWidget {
+  const ChipMagnet({super.key, required this.selected, required this.child});
+
+  final bool selected;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 260),
+      curve: YogiMotion.playful,
+      scale: selected ? 1.05 : 1,
+      child: AnimatedSlide(
+        duration: const Duration(milliseconds: 260),
+        curve: YogiMotion.playful,
+        offset: selected ? const Offset(.02, 0) : Offset.zero,
+        child: TapSquish(child: child),
+      ),
+    );
+  }
+}
+
+class SuccessPopToast extends StatelessWidget {
+  const SuccessPopToast({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: YogiColors.yellow,
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: softShadow(),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.celebration, size: 16, color: YogiColors.ink),
+              const SizedBox(width: 6),
+              Text(
+                text,
+                style: const TextStyle(
+                  color: YogiColors.ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EmptyNudge extends StatefulWidget {
+  const EmptyNudge({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<EmptyNudge> createState() => _EmptyNudgeState();
+}
+
+class _EmptyNudgeState extends State<EmptyNudge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      child: widget.child,
+      builder: (context, child) {
+        final t = _animation.value;
+        final x = t < .3 ? -6 * t / .3 : 6 * (1 - t);
+        final angle = t < .45 ? -.04 + (.08 * t / .45) : .04 * (1 - t);
+        return Transform.translate(
+          offset: Offset(x, 0),
+          child: Transform.rotate(angle: angle, child: child),
+        );
+      },
+    );
+  }
+}
+
 class CircleIconButton extends StatelessWidget {
   const CircleIconButton({
     super.key,
@@ -3821,25 +4230,27 @@ class CircleIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: label,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Ink(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: YogiColors.peach,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFD94C39).withValues(alpha: .72),
-                  offset: const Offset(0, 5),
-                ),
-              ],
+      child: TapSquish(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: Ink(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: YogiColors.peach,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFD94C39).withValues(alpha: .72),
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: Colors.white),
             ),
-            child: Icon(icon, color: Colors.white),
           ),
         ),
       ),

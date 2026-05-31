@@ -756,7 +756,16 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
           background:$background;color:white;
           box-shadow:0 10px 18px rgba(36,50,63,.22);
           transform:translate(-50%,-100%);
+          animation:yogi-pin-hop 620ms cubic-bezier(.2,1.45,.28,1) both;
           display:flex;align-items:center;justify-content:center;position:relative;">
+          <style>
+            @keyframes yogi-pin-hop {
+              0% { translate:0 0; scale:1; }
+              42% { translate:0 -18px; scale:.95 1.08; }
+              68% { translate:0 3px; scale:1.05 .94; }
+              100% { translate:0 0; scale:1; }
+            }
+          </style>
           <span aria-hidden="true" style="
             width:18px;height:22px;background:white;display:block;
             border-radius:8px 8px 5px 5px;
@@ -776,17 +785,31 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
   Object _currentLocationIcon() {
     return _htmlMarkerIcon(
       content: '''
-        <div aria-label="내 현재 위치" style="
-          width:28px;height:28px;border-radius:50%;
-          background:#66A6FF;border:5px solid #FFFFFF;
-          box-shadow:0 6px 14px rgba(36,50,63,.18);
-          box-sizing:border-box;
-        "></div>
+        <div aria-label="내 현재 위치" style="width:68px;height:68px;position:relative;">
+          <style>
+            @keyframes yogi-location-pulse {
+              from { opacity:.7; transform:scale(.45); }
+              to { opacity:0; transform:scale(1.55); }
+            }
+          </style>
+          <span style="
+            position:absolute;inset:0;border-radius:50%;
+            background:rgba(102,166,255,.12);
+            border:1px solid rgba(102,166,255,.24);
+            animation:yogi-location-pulse 1.8s ease-out infinite;
+          "></span>
+          <span style="
+            position:absolute;left:20px;top:20px;width:28px;height:28px;border-radius:50%;
+            background:#66A6FF;border:5px solid #FFFFFF;
+            box-shadow:0 6px 14px rgba(36,50,63,.18);
+            box-sizing:border-box;
+          "></span>
+        </div>
       ''',
-      width: 28,
-      height: 28,
-      anchorX: 14,
-      anchorY: 14,
+      width: 68,
+      height: 68,
+      anchorX: 34,
+      anchorY: 34,
     );
   }
 
