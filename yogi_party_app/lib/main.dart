@@ -94,6 +94,7 @@ class LiveParty {
     required this.poi,
     required this.title,
     required this.host,
+    required this.profileIcon,
     required this.visibility,
     required this.joinPolicy,
     required this.accessLabel,
@@ -112,6 +113,7 @@ class LiveParty {
   final PartyPoi poi;
   final String title;
   final String host;
+  final IconData profileIcon;
   final String visibility;
   final String joinPolicy;
   final String accessLabel;
@@ -130,6 +132,7 @@ class ChatRoom {
   const ChatRoom({
     required this.id,
     required this.title,
+    required this.profileIcon,
     required this.anchorLabel,
     required this.anchorAddress,
     required this.meetupStatus,
@@ -140,10 +143,12 @@ class ChatRoom {
     required this.onlineCount,
     required this.unreadCount,
     required this.active,
+    this.notificationsEnabled = true,
   });
 
   final String id;
   final String title;
+  final IconData profileIcon;
   final String anchorLabel;
   final String anchorAddress;
   final String meetupStatus;
@@ -154,6 +159,7 @@ class ChatRoom {
   final int onlineCount;
   final int unreadCount;
   final bool active;
+  final bool notificationsEnabled;
 }
 
 const samplePois = [
@@ -219,6 +225,7 @@ class _MainShellState extends State<MainShell> {
       poi: samplePois[0],
       title: '맛커 탐방 지금 같이 갈 사람',
       host: '민지',
+      profileIcon: Icons.ramen_dining,
       visibility: 'public',
       joinPolicy: 'instant',
       accessLabel: '제한 없음',
@@ -235,6 +242,7 @@ class _MainShellState extends State<MainShell> {
       poi: samplePois[2],
       title: '코르티스 공연 보러갈 코어 3명 구해요',
       host: '준호',
+      profileIcon: Icons.music_note,
       visibility: 'private',
       joinPolicy: 'approval_required',
       accessLabel: '대학교 인증',
@@ -250,6 +258,7 @@ class _MainShellState extends State<MainShell> {
       poi: samplePois[1],
       title: '샤이니 콘서트 2명 커피 마시고 출발',
       host: '하린',
+      profileIcon: Icons.local_cafe,
       visibility: 'public',
       joinPolicy: 'instant',
       accessLabel: '제한 없음',
@@ -277,6 +286,7 @@ class _MainShellState extends State<MainShell> {
         (party) => ChatRoom(
           id: party.id,
           title: party.title,
+          profileIcon: party.profileIcon,
           anchorLabel: party.poi.name,
           anchorAddress: party.poi.address,
           meetupStatus: party.meetupStatus,
@@ -325,6 +335,7 @@ class _MainShellState extends State<MainShell> {
     required String joinPolicy,
     required String accessLabel,
     required String displayName,
+    required IconData profileIcon,
   }) {
     final id = 'party-${_parties.length + 1}';
     final party = LiveParty(
@@ -332,6 +343,7 @@ class _MainShellState extends State<MainShell> {
       poi: poi,
       title: title,
       host: displayName,
+      profileIcon: profileIcon,
       visibility: visibility,
       joinPolicy: joinPolicy,
       accessLabel: accessLabel,
@@ -390,6 +402,7 @@ class _MainShellState extends State<MainShell> {
           room: ChatRoom(
             id: party.id,
             title: party.title,
+            profileIcon: party.profileIcon,
             anchorLabel: party.poi.name,
             anchorAddress: party.poi.address,
             meetupStatus: party.meetupStatus,
@@ -492,6 +505,7 @@ class HomeMapPage extends StatelessWidget {
     required String joinPolicy,
     required String accessLabel,
     required String displayName,
+    required IconData profileIcon,
   })
   onCreateParty;
   final ValueChanged<LiveParty> onOpenCreatedParty;
@@ -912,6 +926,7 @@ class LocationPartySheet extends StatefulWidget {
     required String joinPolicy,
     required String accessLabel,
     required String displayName,
+    required IconData profileIcon,
   })
   onCreateParty;
   final ValueChanged<LiveParty> onOpenCreatedParty;
@@ -1092,6 +1107,8 @@ class LivePartyCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              PartyProfileImage(icon: party.profileIcon, size: 38),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   party.title,
@@ -1199,6 +1216,74 @@ class PartyMetaIcon extends StatelessWidget {
   }
 }
 
+class PartyProfileImage extends StatelessWidget {
+  const PartyProfileImage({super.key, required this.icon, this.size = 44});
+
+  final IconData icon;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: YogiColors.mintSoft,
+        border: Border.all(color: Colors.white, width: 3),
+        borderRadius: BorderRadius.circular(size * .32),
+        boxShadow: [
+          BoxShadow(
+            color: YogiColors.ink.withValues(alpha: .1),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: YogiColors.mint, size: size * .5),
+    );
+  }
+}
+
+class PartyProfileChoice extends StatelessWidget {
+  const PartyProfileChoice({
+    super.key,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: '파티 프로필 사진',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: selected ? YogiColors.ink : Colors.white,
+            border: Border.all(
+              color: selected ? YogiColors.ink : YogiColors.line,
+            ),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            icon,
+            color: selected ? Colors.white : YogiColors.muted,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class LocationPartyFullPage extends StatelessWidget {
   const LocationPartyFullPage({
     super.key,
@@ -1218,6 +1303,7 @@ class LocationPartyFullPage extends StatelessWidget {
     required String joinPolicy,
     required String accessLabel,
     required String displayName,
+    required IconData profileIcon,
   })
   onCreateParty;
   final ValueChanged<LiveParty> onOpenCreatedParty;
@@ -1312,6 +1398,7 @@ class PartyCreateModal extends StatefulWidget {
     required String joinPolicy,
     required String accessLabel,
     required String displayName,
+    required IconData profileIcon,
   })
   onCreateParty;
   final ValueChanged<LiveParty> onOpenCreatedParty;
@@ -1326,6 +1413,7 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
   String _visibility = 'public';
   String _joinPolicy = 'instant';
   String _accessLabel = '제한 없음';
+  IconData _partyProfileIcon = Icons.celebration;
   LiveParty? _createdParty;
 
   @override
@@ -1356,6 +1444,7 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
       displayName: _profileController.text.trim().isEmpty
           ? '요기러'
           : _profileController.text.trim(),
+      profileIcon: _partyProfileIcon,
     );
     setState(() => _createdParty = party);
   }
@@ -1439,6 +1528,57 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
                         setState(() => _titleController.text = '여의도 불꽃축제 2명'),
                   ),
                 ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  PartyProfileImage(icon: _partyProfileIcon, size: 52),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        PartyProfileChoice(
+                          icon: Icons.celebration,
+                          selected: _partyProfileIcon == Icons.celebration,
+                          onTap: () => setState(
+                            () => _partyProfileIcon = Icons.celebration,
+                          ),
+                        ),
+                        PartyProfileChoice(
+                          icon: Icons.music_note,
+                          selected: _partyProfileIcon == Icons.music_note,
+                          onTap: () => setState(
+                            () => _partyProfileIcon = Icons.music_note,
+                          ),
+                        ),
+                        PartyProfileChoice(
+                          icon: Icons.local_cafe,
+                          selected: _partyProfileIcon == Icons.local_cafe,
+                          onTap: () => setState(
+                            () => _partyProfileIcon = Icons.local_cafe,
+                          ),
+                        ),
+                        PartyProfileChoice(
+                          icon: Icons.hiking,
+                          selected: _partyProfileIcon == Icons.hiking,
+                          onTap: () =>
+                              setState(() => _partyProfileIcon = Icons.hiking),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '파티 프로필 사진은 선택 입력입니다.',
+                style: TextStyle(
+                  color: YogiColors.muted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -1559,40 +1699,25 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
         const Center(child: SheetHandle()),
         const Eyebrow('생성 완료'),
         const SizedBox(height: 4),
-        Text(
-          party.title,
-          style: const TextStyle(
-            color: YogiColors.ink,
-            fontSize: 22,
-            height: 1.16,
-            fontWeight: FontWeight.w900,
-          ),
+        Row(
+          children: [
+            PartyProfileImage(icon: party.profileIcon, size: 54),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                party.title,
+                style: const TextStyle(
+                  color: YogiColors.ink,
+                  fontSize: 22,
+                  height: 1.16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         PartyCreateLocationPreview(poi: widget.poi),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: YogiColors.ink,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.dynamic_feed, color: YogiColors.mint),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Live Activity · ${party.memberCount}명 입장 · ${party.meetupStatus}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
         const SizedBox(height: 12),
         NeighborhoodInviteList(
           compact: true,
@@ -2224,18 +2349,7 @@ class ChatRoomTile extends StatelessWidget {
               children: [
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 27,
-                      backgroundColor: room.active
-                          ? YogiColors.peachSoft
-                          : YogiColors.line,
-                      child: Icon(
-                        Icons.groups,
-                        color: room.active
-                            ? YogiColors.peach
-                            : YogiColors.muted,
-                      ),
-                    ),
+                    PartyProfileImage(icon: room.profileIcon, size: 54),
                     if (room.active)
                       Positioned(
                         right: 1,
@@ -2270,6 +2384,24 @@ class ChatRoomTile extends StatelessWidget {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${room.memberCount}',
+                            style: const TextStyle(
+                              color: YogiColors.muted,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            room.notificationsEnabled
+                                ? Icons.notifications_none
+                                : Icons.notifications_off_outlined,
+                            color: YogiColors.muted,
+                            size: 15,
+                          ),
+                          const SizedBox(width: 8),
                           Text(
                             room.time,
                             style: const TextStyle(
@@ -2314,7 +2446,6 @@ class ChatRoomTile extends StatelessWidget {
                         spacing: 7,
                         runSpacing: 7,
                         children: [
-                          StatusPill(label: '${room.memberCount}명 참여'),
                           StatusPill(label: '${room.onlineCount}명 온라인'),
                           StatusPill(label: room.meetupStatus),
                           StatusPill(label: room.anchorLabel),
@@ -2569,15 +2700,7 @@ class PartyAnchorCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: YogiColors.mintSoft,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.place, color: YogiColors.mint),
-          ),
+          PartyProfileImage(icon: room.profileIcon, size: 44),
           const SizedBox(width: 11),
           Expanded(
             child: Column(
