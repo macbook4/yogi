@@ -425,8 +425,8 @@
           </tr>
           <tr>
             <td>지도/파티 탐색</td>
-            <td>네이버 지도 표시, 좌표/POI 클릭, 해당 위치 파티 목록</td>
-            <td>사용자가 지도에서 특정 위치를 누르면 그 좌표 또는 POI에 생성된 라이브 파티 목록이 열린다.</td>
+            <td>네이버 지도 표시, POI 클릭, 지도 롱프레스, 해당 위치 파티 목록</td>
+            <td>사용자가 POI를 누르거나 지도 특정 지점을 꾹 누르면 그 좌표 또는 POI에 생성된 라이브 파티 목록이 열린다.</td>
           </tr>
           <tr>
             <td>채팅</td>
@@ -447,7 +447,7 @@
         <div class="principle"><strong>실시간 위치:</strong> 멤버 현재 위치 공유는 개인정보 리스크가 커서 MVP에서 제외한다.</div>
         <div class="principle"><strong>장소 후보 의사결정:</strong> 여러 장소를 후보로 올리고 투표하는 기능은 MVP에서 제외한다.</div>
         <div class="principle"><strong>미래 일정 관리:</strong> 날짜 투표, 캘린더 연동, 반복 일정, 리마인드는 MVP에서 제외한다.</div>
-        <div class="principle"><strong>복잡한 모더레이션:</strong> 신고/차단/강퇴는 운영 정책 문서는 정의하되 MVP 구현은 최소화한다.</div>
+        <div class="principle"><strong>복잡한 모더레이션:</strong> 신고, 차단, 제재 자동화는 운영 정책 문서는 정의하되 MVP 구현은 최소화한다.</div>
       </div>
 
       <h3>초기 파티 시나리오</h3>
@@ -538,6 +538,38 @@
 - 파티 참여/초대 URL
 - 내 프로필/인증 관리</div>
 
+      <h3>GNB 표시 정책</h3>
+      <p>
+        하단 GNB는 홈, 톡, 마이 3개 탭을 제공하되 화면에는 텍스트 라벨을 노출하지 않고
+        아이콘만 보여준다. 단, 접근성을 위해 내부 접근성 라벨은 유지한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>탭</th>
+            <th>화면 표시</th>
+            <th>접근성 라벨</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>홈</td>
+            <td>홈 아이콘만 표시</td>
+            <td>홈</td>
+          </tr>
+          <tr>
+            <td>톡</td>
+            <td>채팅 아이콘만 표시</td>
+            <td>톡</td>
+          </tr>
+          <tr>
+            <td>마이</td>
+            <td>프로필 아이콘만 표시</td>
+            <td>마이</td>
+          </tr>
+        </tbody>
+      </table>
+
       <h3>화면별 목적</h3>
       <table>
         <thead>
@@ -569,9 +601,9 @@
             <td>기준 위치 지도, 채팅 패널, 멤버 목록, 참여 상태</td>
           </tr>
           <tr>
-            <td>위치별 파티 목록</td>
+            <td>위치 상세 패널</td>
             <td>지도에서 선택한 위치에 열린 파티들을 확인한다.</td>
-            <td>위치명, 주소, 라이브 파티 목록, 파티 만들기, 파티 입장</td>
+            <td>장소명/좌표명, 주소, 라이브 파티 목록, 파티 만들기, 파티 입장</td>
           </tr>
           <tr>
             <td>초대 참여</td>
@@ -642,9 +674,9 @@
           </ul>
         </div>
         <div class="card">
-          <h3>위치별 파티 영역</h3>
+          <h3>위치 상세 영역</h3>
           <ul>
-            <li>위치 패널: 장소명, 주소, 현재 열린 파티 수</li>
+            <li>위치 패널: 사용자 노출 타이틀은 장소명 또는 좌표명, 보조 정보는 주소와 현재 열린 파티 수</li>
             <li>파티 카드: 제목, 멤버 수, 생성 시각, 인증 조건 여부</li>
             <li>파티 입장 전 미리보기: 제목, 호스트, 현재 대화 상태 요약</li>
             <li>입장 후: 채팅, 멤버, 기준 위치 고정 배너, 멤버별 온라인 초록불</li>
@@ -654,7 +686,9 @@
 
       <h3>위치별 파티 목록 패널</h3>
       <p>
-        POI 또는 좌표를 클릭하면 위치별 파티 목록 패널이 열린다. 기본은 하단에 걸친
+        POI를 클릭하거나 지도 특정 지점을 꾹 누르면 위치별 파티 목록 패널이 열린다. 이 명칭은 내부 화면명이며
+        사용자에게 타이틀로 노출하지 않는다. 사용자에게는 선택한 장소명 또는 좌표명이
+        상단 타이틀로 보인다. 기본은 하단에 걸친
         작은 패널이지만, 별도 확장 버튼 없이 사용자가 위로 드래그하면 네이버 지도 앱처럼
         자연스럽고 부드럽게 화면을 차지하는 전체 페이지 상태로 전환된다.
       </p>
@@ -669,8 +703,8 @@
         <tbody>
           <tr>
             <td>collapsed panel</td>
-            <td>POI/좌표 클릭 시 기본 진입</td>
-            <td>장소명, 주소, 열린 파티 수, 상위 2~3개 파티 카드, 파티 만들기 버튼</td>
+            <td>POI 클릭 또는 지도 롱프레스 시 기본 진입</td>
+            <td>장소명/좌표명, 주소, 열린 파티 수, 상위 2~3개 파티 카드, 파티 만들기 버튼</td>
           </tr>
           <tr>
             <td>expanded panel</td>
@@ -680,13 +714,16 @@
           <tr>
             <td>full page</td>
             <td>패널을 끝까지 위로 드래그</td>
-            <td>상단 앱바, 전체 파티 목록, 위치 요약, 파티 만들기 고정 버튼</td>
+            <td>상단 앱바, 장소명/좌표명 타이틀, 전체 파티 목록, 위치 요약, 파티 만들기 고정 버튼</td>
           </tr>
         </tbody>
       </table>
       <div class="principles">
         <div class="principle"><strong>확장 방식:</strong> 목록 확장을 위한 별도 버튼은 두지 않는다. 위로 드래그하는 제스처만으로 collapsed, expanded, full page 상태가 자연스럽게 이어져야 한다.</div>
         <div class="principle"><strong>상단 컨트롤:</strong> full page 상태에서는 왼쪽 위에 &lt; 뒤로가기 버튼, 오른쪽 위에 X 닫기 버튼을 제공한다.</div>
+        <div class="principle"><strong>사용자 노출 타이틀:</strong> "위치별 파티 목록"이라는 문구는 사용자에게 보여주지 않는다. full page 상단 타이틀은 장소명, POI명, 또는 좌표 기반 지역명으로 표시한다.</div>
+        <div class="principle"><strong>POI 없는 좌표:</strong> 지도 롱프레스로 선택한 지점에 POI가 없으면 reverse geocoding으로 도로명, 지번, 동네명 중 가능한 값을 가져와 좌표 기반 지역명으로 표시한다.</div>
+        <div class="principle"><strong>기준 위치 출처:</strong> 기준 위치는 POI 클릭으로 만들어진 위치와 지도 롱프레스로 만들어진 좌표 위치를 구분해 저장한다.</div>
         <div class="principle"><strong>뒤로가기:</strong> &lt; 버튼은 full page에서 이전 패널 상태로 돌아간다. 이전 상태가 없으면 collapsed panel로 축소한다.</div>
         <div class="principle"><strong>닫기:</strong> X 버튼은 패널을 완전히 닫고 지도 화면으로 돌아간다.</div>
         <div class="principle"><strong>아래 드래그:</strong> full page 또는 expanded 상태에서 아래로 드래그하면 다시 collapsed panel 상태로 축소된다.</div>
@@ -741,9 +778,11 @@
 
       <h3>파티 생성</h3>
       <ol class="flow">
-        <li>사용자가 지도에서 파티를 열고 싶은 좌표 또는 POI를 누른다.</li>
+        <li>사용자가 지도에서 POI를 누르거나 파티를 열고 싶은 특정 지점을 꾹 누른다.</li>
         <li>해당 위치의 파티 목록 드래그 확장 패널이 열린다.</li>
         <li>사용자가 이 위치에 파티 만들기를 누른다.</li>
+        <li>서비스가 사용자의 지도 노출 중인 파티 수를 확인한다.</li>
+        <li>지도 노출 중인 파티가 이미 3개이면 추가 생성을 막고 기존 파티 정리 안내를 보여준다.</li>
         <li>파티명을 입력하거나 추천명을 사용한다.</li>
         <li>파티 유형을 선택한다: 공개파티 또는 비공개파티.</li>
         <li>비공개파티인 경우 입장 승인, 비밀번호, 초대장 즉시 입장 중 허용할 방식을 정한다.</li>
@@ -756,7 +795,7 @@
 
       <h3>지도에서 파티 발견</h3>
       <ol class="flow">
-        <li>사용자가 지도에서 특정 좌표 또는 POI를 누른다.</li>
+        <li>사용자가 지도에서 POI를 누르거나 특정 좌표를 꾹 누른다.</li>
         <li>서비스가 해당 위치 반경 또는 POI 기준으로 생성된 active/live 파티를 조회한다.</li>
         <li>위치별 파티 목록 드래그 확장 패널이 열린다.</li>
         <li>사용자가 패널을 위로 드래그하면 별도 버튼 없이 자연스럽게 전체 페이지로 확장된다.</li>
@@ -895,6 +934,21 @@
             <td>불가</td>
           </tr>
           <tr>
+            <td>멤버 강퇴</td>
+            <td>가능</td>
+            <td>불가</td>
+          </tr>
+          <tr>
+            <td>메시지 가리기</td>
+            <td>가능</td>
+            <td>불가</td>
+          </tr>
+          <tr>
+            <td>멤버 프로필 확인</td>
+            <td>가능</td>
+            <td>가능</td>
+          </tr>
+          <tr>
             <td>파티 종료</td>
             <td>가능</td>
             <td>불가</td>
@@ -1014,6 +1068,40 @@
         <div class="principle"><strong>타임라인 역할:</strong> 시스템 메시지는 파티의 주요 상태 변화를 기록하지만 대화보다 시각적 우선순위가 낮아야 한다.</div>
       </div>
 
+      <h3>그룹채팅 방장 관리 기능</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>기능</th>
+            <th>동작</th>
+            <th>정책</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>강퇴</td>
+            <td>방장이 멤버 프로필 또는 멤버 목록에서 강퇴를 선택한다.</td>
+            <td>강퇴된 사용자는 파티에서 나가고 그룹채팅 접근 권한을 잃는다. 채팅에는 "{닉네임}님이 파티에서 내보내졌습니다." 시스템 메시지를 남긴다.</td>
+          </tr>
+          <tr>
+            <td>메시지 가리기</td>
+            <td>방장이 특정 메시지를 길게 눌러 가리기를 선택한다.</td>
+            <td>메시지 본문 대신 "방장이 가린 메시지입니다."를 표시한다. 원문은 신고/운영 확인을 위해 서버에 보존한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>참가자 프로필 확인</h3>
+      <p>
+        참가자는 그룹채팅 안에서 서로의 프로필을 눌러 파티용 프로필을 확인할 수 있다.
+        계정 신원과 파티 프로필은 분리하며, 실명/이메일/카카오 계정 식별자는 기본 노출하지 않는다.
+      </p>
+      <div class="principles">
+        <div class="principle"><strong>진입:</strong> 채팅 메시지의 아바타, 멤버 목록, 온라인 멤버 표시에서 프로필을 열 수 있다.</div>
+        <div class="principle"><strong>노출 정보:</strong> 파티용 닉네임, 프로필 이미지, 역할, 인증 조건 충족 배지, 온라인 여부를 보여준다.</div>
+        <div class="principle"><strong>방장 추가 액션:</strong> 방장은 프로필 화면에서 강퇴, 메시지 관리 이력 확인 같은 관리 액션을 볼 수 있다.</div>
+      </div>
+
       <h3>알림 설정 정책</h3>
       <p>
         알림 설정은 전역 카테고리 설정과 채팅방별 설정을 분리한다. 전역 카테고리가 OFF이면
@@ -1109,6 +1197,9 @@ VerifiedIdentity.status
       <div class="principles">
         <div class="principle"><strong>같은 위치 다중 파티:</strong> 같은 POI 또는 가까운 좌표에 여러 파티가 있으면 하나의 위치별 파티 목록 패널 안에 최신 live 파티부터 정렬한다.</div>
         <div class="principle"><strong>좌표와 POI 차이:</strong> 네이버 POI가 있으면 POI 기준으로 묶고, POI가 없는 지도 클릭은 좌표 반경 기준으로 묶는다.</div>
+        <div class="principle"><strong>파티 생성 한도:</strong> 한 사용자는 지도에 노출되는 파티를 최대 3개까지만 생성할 수 있다. 집계 기준은 host_user_id가 현재 사용자이고 map_visibility_status가 visible인 파티다.</div>
+        <div class="principle"><strong>한도 제외:</strong> map_visible_until이 지나 지도에서 더 이상 발견되지 않는 파티, map_visibility_status가 hidden인 파티, 사용자가 참여만 한 파티는 생성 한도 집계에서 제외한다.</div>
+        <div class="principle"><strong>한도 초과 안내:</strong> 이미 3개가 노출 중이면 "지도에 노출 중인 파티는 최대 3개까지 만들 수 있어요"를 보여주고, 내 파티 목록으로 이동해 종료/정리할 수 있게 한다.</div>
         <div class="principle"><strong>인증 미충족:</strong> 파티 요약은 보여주되 멤버 상세와 채팅은 입장 전까지 노출하지 않는다.</div>
         <div class="principle"><strong>초대 거절 3회:</strong> 같은 사용자가 동일한 파티 초대를 3번 거절하면 해당 파티의 초대를 다시 받지 않는다. 이후 파티장이 초대 URL을 보내려 해도 대상자 선택 또는 발송 단계에서 제외한다.</div>
         <div class="principle"><strong>호스트 이탈:</strong> MVP에서는 호스트 탈퇴를 막고 파티 종료 후 나갈 수 있게 한다.</div>
@@ -1157,6 +1248,7 @@ Party
 - title
 - internal_activity_type: concert | trip | food_cafe | festival | meetup | null
 - host_user_id
+- anchor_source: poi | coordinate
 - anchor_place_id
 - anchor_lat
 - anchor_lng
@@ -1191,6 +1283,8 @@ PartyMember
 - live_activity_enabled
 - presence_status: online | offline
 - last_presence_at
+- removed_by_user_id
+- removed_reason
 - joined_at
 - left_at
 
@@ -1249,6 +1343,9 @@ ChatMessage
 - type
 - body
 - payload_json
+- hidden_by_user_id
+- hidden_at
+- hidden_reason
 - created_at</div>
 
       <h3>API 초안</h3>
@@ -1299,7 +1396,7 @@ ChatMessage
           <tr>
             <td>POST</td>
             <td>/parties</td>
-            <td>선택한 좌표 또는 POI에 파티와 채팅방 생성</td>
+            <td>선택한 좌표 또는 POI에 파티와 채팅방 생성. 사용자의 지도 노출 중인 생성 파티가 3개이면 생성 거부</td>
           </tr>
           <tr>
             <td>GET</td>
@@ -1360,6 +1457,21 @@ ChatMessage
             <td>PATCH</td>
             <td>/parties/{partyId}/status</td>
             <td>호스트가 모집 중, 집결 중, 이동 중, 종료 상태 변경</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/{partyId}/members/{userId}/profile</td>
+            <td>참가자가 다른 참가자의 파티용 프로필 조회</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/members/{userId}/remove</td>
+            <td>방장이 멤버 강퇴. 강퇴된 사용자는 그룹채팅 접근 권한을 잃음</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/messages/{messageId}/hide</td>
+            <td>방장이 특정 메시지 가리기. 원문은 운영 확인을 위해 보존</td>
           </tr>
           <tr>
             <td>PATCH</td>
@@ -1463,12 +1575,17 @@ ChatMessage
           </tr>
           <tr>
             <td>P1</td>
+            <td>방장 관리: 강퇴, 메시지 가리기, 참가자 프로필 확인</td>
+            <td>그룹채팅 운영과 안전한 파티 진행을 지원한다.</td>
+          </tr>
+          <tr>
+            <td>P1</td>
             <td>파티 상태 변경: 모집 중, 집결 중, 이동 중, 종료</td>
             <td>위치 기반 파티의 현재 상황을 빠르게 파악하게 한다.</td>
           </tr>
           <tr>
             <td>P2</td>
-            <td>신고, 차단, 강퇴, 인증 만료</td>
+            <td>신고, 차단, 인증 만료</td>
             <td>운영 안정성을 위해 필요하지만 초기 검증 이후 확장한다.</td>
           </tr>
         </tbody>
@@ -1489,6 +1606,7 @@ ChatMessage
         <div class="principle"><strong>호스트 권한:</strong> 1차에서는 파티장이 입장 요청 승인/거절, 비밀번호 설정, 즉시 입장 초대 URL 생성, 파티 상태 변경, 파티 종료를 담당한다.</div>
         <div class="principle"><strong>채팅 구현:</strong> MVP부터 실시간 WebSocket 기반으로 간다. 이 서비스에서 채팅은 부가 기능이 아니라 라이브 파티가 살아 있다는 감각을 만드는 핵심 경험이다.</div>
         <div class="principle"><strong>지도 노출 정책:</strong> 지도에서는 오늘 활동 중인 파티를 우선 노출한다. 오늘이 지난 파티는 map_visible_until 이후 지도에서 발견되지 않지만, 참여자의 그룹채팅 목록과 채팅 기록은 유지한다.</div>
+        <div class="principle"><strong>생성 한도:</strong> 한 사용자가 지도에 노출 중인 파티는 최대 3개까지 만들 수 있다. 지도에서 내려간 파티와 참여만 한 파티는 집계하지 않는다.</div>
         <div class="principle"><strong>네이버 POI 저장 정책:</strong> 우리 DB에는 naver_poi_id, 장소명, 주소, 좌표, 카테고리, 파티별 상태만 저장한다. 리뷰, 별점, 이미지 등 네이버가 소유한 풍부한 콘텐츠는 저장하지 않고 필요 시 원천 화면으로 연결한다.</div>
         <div class="principle"><strong>조직 인증:</strong> 인증은 서비스 전체 타깃을 좁히는 장치가 아니라 파티별 접근 조건 파라미터다. 학교/회사 이메일 인증은 파티장이 필요할 때만 요구한다.</div>
         <div class="principle"><strong>공개 범위:</strong> 1차에서 지도에는 공개파티와 비공개파티가 모두 노출될 수 있다. 단, 비공개파티는 입장 전 채팅과 멤버 상세를 제한한다.</div>

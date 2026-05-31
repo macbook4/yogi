@@ -12,6 +12,7 @@ class YogiNaverMapLayer extends StatelessWidget {
     required this.focusedPoiId,
     required this.candidatePoiIds,
     required this.onPoiTap,
+    required this.onMapLongPress,
   });
 
   final Widget fallback;
@@ -19,6 +20,13 @@ class YogiNaverMapLayer extends StatelessWidget {
   final String? focusedPoiId;
   final Set<String> candidatePoiIds;
   final ValueChanged<dynamic> onPoiTap;
+  final void Function({
+    required double lat,
+    required double lng,
+    required String name,
+    required String address,
+  })
+  onMapLongPress;
 
   @override
   Widget build(BuildContext context) {

@@ -58,6 +58,7 @@ class PartyPoi {
     required this.lng,
     required this.tint,
     required this.hexColor,
+    this.anchorSource = 'poi',
   });
 
   final String id;
@@ -69,6 +70,7 @@ class PartyPoi {
   final double lng;
   final Color tint;
   final String hexColor;
+  final String anchorSource;
 }
 
 class PartyCandidate {
@@ -293,6 +295,29 @@ class _MainShellState extends State<MainShell> {
     return _parties.where((party) => party.poi.id == poi.id).toList();
   }
 
+  void _selectCoordinateAnchor({
+    required double lat,
+    required double lng,
+    required String name,
+    required String address,
+  }) {
+    final id = 'coord-${lat.toStringAsFixed(5)}-${lng.toStringAsFixed(5)}';
+    setState(() {
+      _focusedPoi = PartyPoi(
+        id: id,
+        name: name,
+        address: address,
+        category: '좌표',
+        position: const Offset(.5, .5),
+        lat: lat,
+        lng: lng,
+        tint: YogiColors.violet,
+        hexColor: '#8368FF',
+        anchorSource: 'coordinate',
+      );
+    });
+  }
+
   LiveParty _createPartyAt(
     PartyPoi poi, {
     required String title,
@@ -398,6 +423,7 @@ class _MainShellState extends State<MainShell> {
             ? const []
             : _partiesAt(_focusedPoi!),
         onPoiTap: (poi) => setState(() => _focusedPoi = poi),
+        onMapLongPress: _selectCoordinateAnchor,
         onCreateParty: _createPartyAt,
         onOpenCreatedParty: _openCreatedParty,
         onJoinParty: _joinParty,
@@ -443,6 +469,7 @@ class HomeMapPage extends StatelessWidget {
     required this.focusedPoi,
     required this.partiesAtFocusedPoi,
     required this.onPoiTap,
+    required this.onMapLongPress,
     required this.onCreateParty,
     required this.onOpenCreatedParty,
     required this.onJoinParty,
@@ -451,6 +478,13 @@ class HomeMapPage extends StatelessWidget {
   final PartyPoi? focusedPoi;
   final List<LiveParty> partiesAtFocusedPoi;
   final ValueChanged<PartyPoi> onPoiTap;
+  final void Function({
+    required double lat,
+    required double lng,
+    required String name,
+    required String address,
+  })
+  onMapLongPress;
   final LiveParty Function(
     PartyPoi poi, {
     required String title,
@@ -471,6 +505,7 @@ class HomeMapPage extends StatelessWidget {
           pois: samplePois,
           focusedPoi: focusedPoi,
           onPoiTap: onPoiTap,
+          onMapLongPress: onMapLongPress,
         ),
         SafeArea(
           child: Padding(
@@ -548,11 +583,19 @@ class PrototypeMap extends StatelessWidget {
     required this.pois,
     required this.focusedPoi,
     required this.onPoiTap,
+    required this.onMapLongPress,
   });
 
   final List<PartyPoi> pois;
   final PartyPoi? focusedPoi;
   final ValueChanged<PartyPoi> onPoiTap;
+  final void Function({
+    required double lat,
+    required double lng,
+    required String name,
+    required String address,
+  })
+  onMapLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -570,6 +613,7 @@ class PrototypeMap extends StatelessWidget {
                 focusedPoiId: focusedPoi?.id,
                 candidatePoiIds: const {},
                 onPoiTap: (poi) => onPoiTap(poi as PartyPoi),
+                onMapLongPress: onMapLongPress,
               ),
             ),
             if (!NaverMapConfig.hasClientId) ...[
@@ -1149,7 +1193,7 @@ class LocationPartyFullPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
           tooltip: '뒤로가기',
         ),
-        title: const Text('위치별 파티 목록'),
+        title: Text(poi.name, overflow: TextOverflow.ellipsis),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -2107,6 +2151,7 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final _controller = TextEditingController();
+  final Set<int> _hiddenMessageIndexes = {};
 
   @override
   void dispose() {
@@ -2121,6 +2166,70 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     setState(() => _controller.clear());
   }
 
+  List<String> get _participants {
+    final names = <String>{'나'};
+    for (final message in widget.messages) {
+      final parsed = ParsedChatMessage.from(message);
+      if (!parsed.system && parsed.sender.isNotEmpty) {
+        names.add(parsed.sender);
+      }
+    }
+    return names.toList();
+  }
+
+  void _showProfile(String sender) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ParticipantProfileSheet(
+        name: sender,
+        role: sender == '나' ? '파티장' : '참가자',
+        accessLabel: widget.room.visibility == 'private' ? '대학교 인증' : '제한 없음',
+        online: sender != '요기',
+        hostMode: true,
+        onRemove: sender == '나'
+            ? null
+            : () {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$sender님을 파티에서 내보냈습니다.')),
+                );
+              },
+      ),
+    );
+  }
+
+  void _showMembers() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) =>
+          MembersSheet(members: _participants, onOpenProfile: _showProfile),
+    );
+  }
+
+  void _showMessageActions(int index, ParsedChatMessage message) {
+    if (message.mine ||
+        message.system ||
+        _hiddenMessageIndexes.contains(index)) {
+      return;
+    }
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => MessageModerationSheet(
+        sender: message.sender,
+        onHide: () {
+          Navigator.of(context).pop();
+          setState(() => _hiddenMessageIndexes.add(index));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('방장이 메시지를 가렸습니다.')));
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2130,6 +2239,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         backgroundColor: const Color(0xFFEFF8F5),
         foregroundColor: YogiColors.ink,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: _showMembers,
+            icon: const Icon(Icons.group_outlined),
+            tooltip: '멤버 목록',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -2140,7 +2256,15 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               itemCount: widget.messages.length,
               itemBuilder: (context, index) {
                 final message = widget.messages[index];
-                return ChatMessageRow(message: message);
+                final parsed = ParsedChatMessage.from(message);
+                return ChatMessageRow(
+                  message: message,
+                  hidden: _hiddenMessageIndexes.contains(index),
+                  onProfileTap: parsed.system
+                      ? null
+                      : () => _showProfile(parsed.sender),
+                  onLongPress: () => _showMessageActions(index, parsed),
+                );
               },
             ),
           ),
@@ -2249,9 +2373,18 @@ class PartyAnchorCard extends StatelessWidget {
 }
 
 class ChatMessageRow extends StatelessWidget {
-  const ChatMessageRow({super.key, required this.message});
+  const ChatMessageRow({
+    super.key,
+    required this.message,
+    this.hidden = false,
+    this.onProfileTap,
+    this.onLongPress,
+  });
 
   final String message;
+  final bool hidden;
+  final VoidCallback? onProfileTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -2263,14 +2396,17 @@ class ChatMessageRow extends StatelessWidget {
     if (parsed.mine) {
       return Align(
         alignment: Alignment.centerRight,
-        child: ChatBubble(
-          text: parsed.body,
-          color: YogiColors.yellow,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(4),
-            bottomLeft: Radius.circular(16),
-            bottomRight: Radius.circular(16),
+        child: GestureDetector(
+          onLongPress: onLongPress,
+          child: ChatBubble(
+            text: hidden ? '방장이 가린 메시지입니다.' : parsed.body,
+            color: hidden ? YogiColors.line : YogiColors.yellow,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(4),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
           ),
         ),
       );
@@ -2281,7 +2417,7 @@ class ChatMessageRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ChatProfileAvatar(sender: parsed.sender),
+          ChatProfileAvatar(sender: parsed.sender, onTap: onProfileTap),
           const SizedBox(width: 8),
           Flexible(
             child: Column(
@@ -2298,16 +2434,21 @@ class ChatMessageRow extends StatelessWidget {
                     ),
                   ),
                 ),
-                ChatBubble(
-                  text: parsed.body,
-                  color: parsed.sender == '요기'
-                      ? YogiColors.mintSoft
-                      : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
+                GestureDetector(
+                  onLongPress: onLongPress,
+                  child: ChatBubble(
+                    text: hidden ? '방장이 가린 메시지입니다.' : parsed.body,
+                    color: hidden
+                        ? YogiColors.line
+                        : parsed.sender == '요기'
+                        ? YogiColors.mintSoft
+                        : Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
                   ),
                 ),
               ],
@@ -2381,9 +2522,10 @@ class ParsedChatMessage {
 }
 
 class ChatProfileAvatar extends StatelessWidget {
-  const ChatProfileAvatar({super.key, required this.sender});
+  const ChatProfileAvatar({super.key, required this.sender, this.onTap});
 
   final String sender;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -2396,38 +2538,41 @@ class ChatProfileAvatar extends StatelessWidget {
         : YogiColors.peachSoft;
     final foreground = isYogi || isHost ? Colors.white : YogiColors.peach;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: background,
-          child: isYogi
-              ? const Icon(Icons.location_on, size: 18, color: Colors.white)
-              : Text(
-                  sender.characters.first,
-                  style: TextStyle(
-                    color: foreground,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14,
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: background,
+            child: isYogi
+                ? const Icon(Icons.location_on, size: 18, color: Colors.white)
+                : Text(
+                    sender.characters.first,
+                    style: TextStyle(
+                      color: foreground,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                    ),
                   ),
+          ),
+          if (!isYogi)
+            Positioned(
+              right: -1,
+              bottom: -1,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: YogiColors.mint,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
                 ),
-        ),
-        if (!isYogi)
-          Positioned(
-            right: -1,
-            bottom: -1,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: YogiColors.mint,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -2458,6 +2603,193 @@ class ChatBubble extends StatelessWidget {
           fontWeight: FontWeight.w700,
           height: 1.35,
         ),
+      ),
+    );
+  }
+}
+
+class MembersSheet extends StatelessWidget {
+  const MembersSheet({
+    super.key,
+    required this.members,
+    required this.onOpenProfile,
+  });
+
+  final List<String> members;
+  final ValueChanged<String> onOpenProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    return SheetContainer(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SheetHandle(),
+          const Text(
+            '참가자',
+            style: TextStyle(
+              color: YogiColors.ink,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (final member in members)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: ChatProfileAvatar(sender: member),
+              title: Text(
+                member,
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+              subtitle: Text(member == '나' ? '파티장 · 온라인' : '참가자 · 온라인'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => onOpenProfile(member),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class ParticipantProfileSheet extends StatelessWidget {
+  const ParticipantProfileSheet({
+    super.key,
+    required this.name,
+    required this.role,
+    required this.accessLabel,
+    required this.online,
+    required this.hostMode,
+    this.onRemove,
+  });
+
+  final String name;
+  final String role;
+  final String accessLabel;
+  final bool online;
+  final bool hostMode;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return SheetContainer(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SheetHandle(),
+          Row(
+            children: [
+              ChatProfileAvatar(sender: name),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: YogiColors.ink,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      role,
+                      style: const TextStyle(
+                        color: YogiColors.muted,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              StatusPill(label: accessLabel),
+              StatusPill(label: online ? '온라인' : '오프라인'),
+              const StatusPill(label: '파티용 프로필'),
+            ],
+          ),
+          if (hostMode) ...[
+            const SizedBox(height: 16),
+            const Text(
+              '방장 관리',
+              style: TextStyle(
+                color: YogiColors.ink,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onRemove,
+                    icon: const Icon(Icons.person_remove_outlined),
+                    label: const Text('강퇴'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.visibility_off_outlined),
+                    label: const Text('메시지 이력'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class MessageModerationSheet extends StatelessWidget {
+  const MessageModerationSheet({
+    super.key,
+    required this.sender,
+    required this.onHide,
+  });
+
+  final String sender;
+  final VoidCallback onHide;
+
+  @override
+  Widget build(BuildContext context) {
+    return SheetContainer(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SheetHandle(),
+          Text(
+            '$sender님의 메시지',
+            style: const TextStyle(
+              color: YogiColors.ink,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onHide,
+              icon: const Icon(Icons.visibility_off_outlined),
+              label: const Text('방장이 메시지 가리기'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2773,6 +3105,26 @@ class SheetHandle extends StatelessWidget {
           color: YogiColors.line,
           borderRadius: BorderRadius.circular(999),
         ),
+      ),
+    );
+  }
+}
+
+class SheetContainer extends StatelessWidget {
+  const SheetContainer({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(18),
+        decoration: softCardDecoration(),
+        child: child,
       ),
     );
   }

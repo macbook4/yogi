@@ -17,6 +17,7 @@ class YogiNaverMapLayer extends StatefulWidget {
     required this.focusedPoiId,
     required this.candidatePoiIds,
     required this.onPoiTap,
+    required this.onMapLongPress,
   });
 
   final Widget fallback;
@@ -24,6 +25,13 @@ class YogiNaverMapLayer extends StatefulWidget {
   final String? focusedPoiId;
   final Set<String> candidatePoiIds;
   final ValueChanged<dynamic> onPoiTap;
+  final void Function({
+    required double lat,
+    required double lng,
+    required String name,
+    required String address,
+  })
+  onMapLongPress;
 
   @override
   State<YogiNaverMapLayer> createState() => _YogiNaverMapLayerState();
@@ -45,7 +53,15 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
   final Map<String, Object> _adminBorders = {};
   String? _selectedAdminAreaId;
   Timer? _levelSyncTimer;
+  Timer? _longPressTimer;
   StreamSubscription<html.WheelEvent>? _wheelSubscription;
+  StreamSubscription<html.MouseEvent>? _mouseDownSubscription;
+  StreamSubscription<html.MouseEvent>? _mouseMoveSubscription;
+  StreamSubscription<html.MouseEvent>? _mouseUpSubscription;
+  StreamSubscription<html.TouchEvent>? _touchStartSubscription;
+  StreamSubscription<html.TouchEvent>? _touchMoveSubscription;
+  StreamSubscription<html.TouchEvent>? _touchEndSubscription;
+  html.Point<num>? _longPressStart;
 
   @override
   void initState() {
@@ -78,7 +94,14 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
   @override
   void dispose() {
     _levelSyncTimer?.cancel();
+    _longPressTimer?.cancel();
     _wheelSubscription?.cancel();
+    _mouseDownSubscription?.cancel();
+    _mouseMoveSubscription?.cancel();
+    _mouseUpSubscription?.cancel();
+    _touchStartSubscription?.cancel();
+    _touchMoveSubscription?.cancel();
+    _touchEndSubscription?.cancel();
     js_util.setProperty(html.window, _callbackName, null);
     js_util.setProperty(html.window, _adminCallbackName, null);
     js_util.setProperty(html.window, _zoomCallbackName, null);
@@ -174,6 +197,7 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
     _scheduleResize();
     _installZoomControls();
     _installWheelZoom();
+    _installLongPressSelection();
 
     _createAdminOverlays(
       map: map,
@@ -353,6 +377,116 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
       event.preventDefault();
       _changeZoom(event.deltaY < 0 ? 1 : -1);
     });
+  }
+
+  void _installLongPressSelection() {
+    final element = _mapElement;
+    if (element == null) return;
+
+    void cancelLongPress() {
+      _longPressTimer?.cancel();
+      _longPressTimer = null;
+      _longPressStart = null;
+    }
+
+    bool movedTooFar(html.Point<num> current) {
+      final start = _longPressStart;
+      if (start == null) return true;
+      return (current.x - start.x).abs() > 10 ||
+          (current.y - start.y).abs() > 10;
+    }
+
+    void startLongPress(html.Point<num> pagePoint) {
+      _longPressTimer?.cancel();
+      _longPressStart = pagePoint;
+      _longPressTimer = Timer(const Duration(milliseconds: 620), () {
+        final coordinate = _coordinateFromPagePoint(pagePoint);
+        if (coordinate == null) return;
+        widget.onMapLongPress(
+          lat: coordinate.lat,
+          lng: coordinate.lng,
+          name: '성수동 선택 지점',
+          address:
+              '좌표 ${coordinate.lat.toStringAsFixed(5)}, ${coordinate.lng.toStringAsFixed(5)}',
+        );
+      });
+    }
+
+    _mouseDownSubscription?.cancel();
+    _mouseMoveSubscription?.cancel();
+    _mouseUpSubscription?.cancel();
+    _touchStartSubscription?.cancel();
+    _touchMoveSubscription?.cancel();
+    _touchEndSubscription?.cancel();
+
+    _mouseDownSubscription = element.onMouseDown.listen((event) {
+      final target = event.target;
+      if (target is html.Element && target.closest('.yogi-map-zoom') != null) {
+        return;
+      }
+      startLongPress(event.page);
+    });
+    _mouseMoveSubscription = element.onMouseMove.listen((event) {
+      if (movedTooFar(event.page)) cancelLongPress();
+    });
+    _mouseUpSubscription = element.onMouseUp.listen((_) => cancelLongPress());
+
+    _touchStartSubscription = element.onTouchStart.listen((event) {
+      if (event.touches == null || event.touches!.isEmpty) return;
+      final touch = event.touches!.first;
+      startLongPress(html.Point<num>(touch.page.x, touch.page.y));
+    });
+    _touchMoveSubscription = element.onTouchMove.listen((event) {
+      if (event.touches == null || event.touches!.isEmpty) return;
+      final touch = event.touches!.first;
+      final point = html.Point<num>(touch.page.x, touch.page.y);
+      if (movedTooFar(point)) cancelLongPress();
+    });
+    _touchEndSubscription = element.onTouchEnd.listen((_) => cancelLongPress());
+  }
+
+  _MapCoordinate? _coordinateFromPagePoint(html.Point<num> pagePoint) {
+    final map = _map;
+    final maps = _maps;
+    if (map == null || maps == null) return null;
+
+    try {
+      final projection = js_util.callMethod<Object>(map, 'getProjection', []);
+      final pointConstructor = js_util.getProperty<Object>(maps, 'Point');
+      final point = js_util.callConstructor<Object>(pointConstructor, [
+        pagePoint.x,
+        pagePoint.y,
+      ]);
+      final coord = js_util.callMethod<Object>(
+        projection,
+        'fromPageXYToCoord',
+        [point],
+      );
+      return _MapCoordinate(
+        _readLatLngValue(coord, 'lat'),
+        _readLatLngValue(coord, 'lng'),
+      );
+    } catch (_) {
+      try {
+        final center = js_util.callMethod<Object>(map, 'getCenter', []);
+        return _MapCoordinate(
+          _readLatLngValue(center, 'lat'),
+          _readLatLngValue(center, 'lng'),
+        );
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  double _readLatLngValue(Object coord, String key) {
+    final method = js_util.getProperty<Object?>(coord, key);
+    if (method != null) {
+      final value = js_util.callMethod<num>(coord, key, []);
+      return value.toDouble();
+    }
+    final value = js_util.getProperty<num>(coord, key);
+    return value.toDouble();
   }
 
   void _changeZoom(int delta) {
@@ -654,6 +788,13 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
     if (!NaverMapConfig.hasClientId) return widget.fallback;
     return HtmlElementView(viewType: _viewType);
   }
+}
+
+class _MapCoordinate {
+  const _MapCoordinate(this.lat, this.lng);
+
+  final double lat;
+  final double lng;
 }
 
 enum _AdminLevel { gu, dong, place }
