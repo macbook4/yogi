@@ -279,6 +279,7 @@ class _MainShellState extends State<MainShell> {
     'party-2': ['요기: 비공개 파티가 열렸어요. 입장 요청이 필요합니다.', '준호: 공연 전 플라자홀에서 모여요.'],
     'party-3': ['요기: 파티방이 열렸어요. 기준 위치는 무브커피입니다.', '하린: 무브커피 앞에서 기다릴게요.'],
   };
+  final Map<String, bool> _notificationsEnabledByParty = {};
 
   List<ChatRoom> get _rooms => _parties
       .where((party) => party.joined)
@@ -297,6 +298,7 @@ class _MainShellState extends State<MainShell> {
           onlineCount: party.onlineCount,
           unreadCount: _tabIndex == 1 ? 0 : 1,
           active: party.meetupStatus != '종료',
+          notificationsEnabled: _notificationsEnabledByParty[party.id] ?? true,
         ),
       )
       .toList();
@@ -412,6 +414,10 @@ class _MainShellState extends State<MainShell> {
     _openLiveParty(party);
   }
 
+  void _setRoomNotifications(String roomId, bool enabled) {
+    setState(() => _notificationsEnabledByParty[roomId] = enabled);
+  }
+
   void _openLiveParty(LiveParty party) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -430,8 +436,12 @@ class _MainShellState extends State<MainShell> {
             onlineCount: party.onlineCount,
             unreadCount: 0,
             active: true,
+            notificationsEnabled:
+                _notificationsEnabledByParty[party.id] ?? true,
           ),
           messages: _messagesByParty[party.id] ?? const [],
+          onNotificationChanged: (enabled) =>
+              _setRoomNotifications(party.id, enabled),
           onSend: (message) {
             setState(() {
               _messagesByParty.putIfAbsent(party.id, () => []);
@@ -459,7 +469,11 @@ class _MainShellState extends State<MainShell> {
         onOpenCreatedParty: _openCreatedParty,
         onJoinParty: _joinParty,
       ),
-      TalkListPage(rooms: _rooms, onOpenRoom: _openChatRoom),
+      TalkListPage(
+        rooms: _rooms,
+        onOpenRoom: _openChatRoom,
+        onNotificationChanged: _setRoomNotifications,
+      ),
       const MyPage(),
     ];
 
@@ -2476,10 +2490,12 @@ class TalkListPage extends StatelessWidget {
     super.key,
     required this.rooms,
     required this.onOpenRoom,
+    required this.onNotificationChanged,
   });
 
   final List<ChatRoom> rooms;
   final ValueChanged<ChatRoom> onOpenRoom;
+  final void Function(String roomId, bool enabled) onNotificationChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -2492,6 +2508,7 @@ class TalkListPage extends StatelessWidget {
           for (final room in rooms)
             ChatRoomSwipeActions(
               room: room,
+              onNotificationChanged: onNotificationChanged,
               child: ChatRoomTile(room: room, onTap: () => onOpenRoom(room)),
             ),
         ],
@@ -2504,10 +2521,12 @@ class ChatRoomSwipeActions extends StatelessWidget {
   const ChatRoomSwipeActions({
     super.key,
     required this.room,
+    required this.onNotificationChanged,
     required this.child,
   });
 
   final ChatRoom room;
+  final void Function(String roomId, bool enabled) onNotificationChanged;
   final Widget child;
 
   @override
@@ -2515,21 +2534,32 @@ class ChatRoomSwipeActions extends StatelessWidget {
     return Dismissible(
       key: ValueKey('room-${room.id}'),
       confirmDismiss: (direction) async {
-        final message = direction == DismissDirection.startToEnd
-            ? '이 채팅방 알림을 껐어요.'
-            : '호스트는 파티 종료 후 나갈 수 있어요.';
+        final isNotificationAction = direction == DismissDirection.startToEnd;
+        if (isNotificationAction) {
+          final enabled = !room.notificationsEnabled;
+          onNotificationChanged(room.id, enabled);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(enabled ? '이 채팅방 알림을 켰어요.' : '이 채팅방 알림을 껐어요.'),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+          return false;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const Duration(seconds: 1),
+          const SnackBar(
+            content: Text('호스트는 파티 종료 후 나갈 수 있어요.'),
+            duration: Duration(seconds: 1),
           ),
         );
         return false;
       },
-      background: const ChatSwipeBackground(
+      background: ChatSwipeBackground(
         alignment: Alignment.centerLeft,
-        icon: Icons.notifications_off,
-        label: '알림 끄기',
+        icon: room.notificationsEnabled
+            ? Icons.notifications_off
+            : Icons.notifications_none,
+        label: room.notificationsEnabled ? '알림 끄기' : '알림 켜기',
         color: YogiColors.mint,
       ),
       secondaryBackground: const ChatSwipeBackground(
@@ -2726,11 +2756,13 @@ class ChatRoomPage extends StatefulWidget {
     super.key,
     required this.room,
     required this.messages,
+    required this.onNotificationChanged,
     required this.onSend,
   });
 
   final ChatRoom room;
   final List<String> messages;
+  final ValueChanged<bool> onNotificationChanged;
   final ValueChanged<String> onSend;
 
   @override
@@ -2740,6 +2772,13 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final _controller = TextEditingController();
   final Set<int> _hiddenMessageIndexes = {};
+  late bool _notificationsEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationsEnabled = widget.room.notificationsEnabled;
+  }
 
   @override
   void dispose() {
@@ -2857,6 +2896,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     );
   }
 
+  void _setNotifications(bool enabled) {
+    setState(() => _notificationsEnabled = enabled);
+    widget.onNotificationChanged(enabled);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(enabled ? '이 채팅방 알림을 켰어요.' : '이 채팅방 알림을 껐어요.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2865,6 +2912,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         preferredSize: const Size.fromHeight(58),
         child: ChatRoomHeader(
           room: widget.room,
+          notificationsEnabled: _notificationsEnabled,
+          onNotificationChanged: _setNotifications,
           onInvite: _showInviteCandidates,
           onMembers: _showMembers,
         ),
@@ -2990,11 +3039,15 @@ class ChatRoomHeader extends StatelessWidget {
   const ChatRoomHeader({
     super.key,
     required this.room,
+    required this.notificationsEnabled,
+    required this.onNotificationChanged,
     required this.onInvite,
     required this.onMembers,
   });
 
   final ChatRoom room;
+  final bool notificationsEnabled;
+  final ValueChanged<bool> onNotificationChanged;
   final VoidCallback onInvite;
   final VoidCallback onMembers;
 
@@ -3048,20 +3101,40 @@ class ChatRoomHeader extends StatelessWidget {
                   ),
                   PopupMenuButton<String>(
                     tooltip: '채팅방 메뉴',
-                    icon: const Icon(Icons.more_horiz),
+                    icon: Icon(
+                      notificationsEnabled
+                          ? Icons.more_horiz
+                          : Icons.notifications_off_outlined,
+                    ),
                     onSelected: (value) {
                       if (value == 'invite') onInvite();
                       if (value == 'members') onMembers();
+                      if (value == 'notifications') {
+                        onNotificationChanged(!notificationsEnabled);
+                      }
                       if (value == 'settings') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('파티 설정은 준비 중입니다.')),
                         );
                       }
                     },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: 'members', child: Text('멤버 목록')),
-                      PopupMenuItem(value: 'invite', child: Text('동네 사용자 초대')),
-                      PopupMenuItem(value: 'settings', child: Text('파티 설정')),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'members',
+                        child: Text('멤버 목록'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'invite',
+                        child: Text('동네 사용자 초대'),
+                      ),
+                      PopupMenuItem(
+                        value: 'notifications',
+                        child: Text(notificationsEnabled ? '알림 끄기' : '알림 켜기'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'settings',
+                        child: Text('파티 설정'),
+                      ),
                     ],
                   ),
                 ],
