@@ -168,6 +168,7 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
     final mapConstructor = js_util.getProperty<Object>(maps, 'Map');
     final markerConstructor = js_util.getProperty<Object>(maps, 'Marker');
     final polygonConstructor = js_util.getProperty<Object>(maps, 'Polygon');
+    final circleConstructor = js_util.getProperty<Object>(maps, 'Circle');
     final event = js_util.getProperty<Object>(maps, 'Event');
 
     final center = js_util.callConstructor<Object>(latLngConstructor, [
@@ -198,6 +199,12 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
     _installZoomControls();
     _installWheelZoom();
     _installLongPressSelection();
+    _createCurrentLocationOverlay(
+      map: map,
+      latLngConstructor: latLngConstructor,
+      markerConstructor: markerConstructor,
+      circleConstructor: circleConstructor,
+    );
 
     _createAdminOverlays(
       map: map,
@@ -299,6 +306,40 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
       ]);
       _adminBorders[area.id] = polygon;
     }
+  }
+
+  void _createCurrentLocationOverlay({
+    required Object map,
+    required Object latLngConstructor,
+    required Object markerConstructor,
+    required Object circleConstructor,
+  }) {
+    final position = js_util.callConstructor<Object>(latLngConstructor, [
+      37.5447,
+      127.0581,
+    ]);
+    js_util.callConstructor<Object>(circleConstructor, [
+      js_util.jsify({
+        'center': position,
+        'map': map,
+        'radius': 85,
+        'strokeColor': '#66A6FF',
+        'strokeOpacity': 0.26,
+        'strokeWeight': 1,
+        'fillColor': '#66A6FF',
+        'fillOpacity': 0.12,
+        'zIndex': 60,
+      }),
+    ]);
+    js_util.callConstructor<Object>(markerConstructor, [
+      js_util.jsify({
+        'position': position,
+        'map': map,
+        'title': '내 현재 위치',
+        'icon': _currentLocationIcon(),
+        'zIndex': 90,
+      }),
+    ]);
   }
 
   void _selectAdminArea(_AdminArea area) {
@@ -702,25 +743,50 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
     final focused = widget.focusedPoiId == poi.id;
     final background = added ? '#24323F' : poi.hexColor;
     final halo = focused ? '#FFD35A' : '#FFFFFF';
-    final width = focused ? 112 : 98;
-    final height = focused ? 48 : 42;
+    final width = focused ? 50 : 44;
+    final height = focused ? 54 : 48;
     final label = _escapeHtml(poi.name as String);
     final id = _escapeJsString(poi.id as String);
     return _htmlMarkerIcon(
       content:
           '''
-        <button onclick="window.$_callbackName('$id')" style="
-          min-width:${width}px;height:${height}px;padding:0 12px;
-          border:3px solid $halo;border-radius:22px 22px 22px 7px;
-          background:$background;color:white;font-weight:900;font-size:12px;
+        <button onclick="window.$_callbackName('$id')" aria-label="$label 위치, 선택하면 장소명과 열린 파티 목록 표시" title="$label" style="
+          width:${width}px;height:${height}px;padding:0;
+          border:3px solid $halo;border-radius:24px 24px 24px 8px;
+          background:$background;color:white;
           box-shadow:0 10px 18px rgba(36,50,63,.22);
           transform:translate(-50%,-100%);
-          white-space:nowrap;">$label${added ? ' ✓' : ''}</button>
+          display:flex;align-items:center;justify-content:center;position:relative;">
+          <span aria-hidden="true" style="
+            width:18px;height:22px;background:white;display:block;
+            border-radius:8px 8px 5px 5px;
+            clip-path:polygon(0 0,100% 0,100% 100%,50% 74%,0 100%);
+          "></span>
+          ${added ? '<span aria-hidden="true" style="position:absolute;right:-7px;top:-9px;width:21px;height:21px;border-radius:50%;background:#FFD35A;color:#24323F;font-weight:900;font-size:13px;line-height:21px;">✓</span>' : ''}
+          ${focused ? '<span aria-hidden="true" style="position:absolute;left:17px;bottom:-7px;width:12px;height:12px;border-radius:50%;background:#FFD35A;"></span>' : ''}
+        </button>
       ''',
       width: width.toDouble(),
       height: height.toDouble(),
       anchorX: width / 2,
       anchorY: height.toDouble(),
+    );
+  }
+
+  Object _currentLocationIcon() {
+    return _htmlMarkerIcon(
+      content: '''
+        <div aria-label="내 현재 위치" style="
+          width:28px;height:28px;border-radius:50%;
+          background:#66A6FF;border:5px solid #FFFFFF;
+          box-shadow:0 6px 14px rgba(36,50,63,.18);
+          box-sizing:border-box;
+        "></div>
+      ''',
+      width: 28,
+      height: 28,
+      anchorX: 14,
+      anchorY: 14,
     );
   }
 

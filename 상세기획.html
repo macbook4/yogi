@@ -735,7 +735,7 @@
           <h3>지도 중심 영역</h3>
           <ul>
             <li>네이버 지도 전체 영역</li>
-            <li>POI 또는 좌표별 라이브 파티 수 표시</li>
+            <li>POI 또는 좌표별 라이브 파티 수를 북마크/핀형 심볼로 표시</li>
             <li>사용자가 누른 위치의 드래그 확장 패널 표시</li>
             <li>현재 위치 주변의 활성 파티 밀도 표시</li>
             <li>GPS 기준 내 위치로 이동 버튼</li>
@@ -752,6 +752,45 @@
             <li>입장 후: 채팅, 멤버, 기준 위치 고정 배너, 멤버별 온라인 초록불</li>
           </ul>
         </div>
+      </div>
+
+      <h3>지도 POI 심볼 표시</h3>
+      <p>
+        지도 위 POI는 상호명 텍스트를 상시 노출하기보다, 네이버 지도 북마크 기호처럼
+        작은 심볼 중심으로 제공한다. 지도는 한눈에 위치와 파티 존재 여부를 파악하는
+        영역이고, 장소명과 상세 정보는 사용자가 선택한 뒤 패널에서 보여준다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>대상</th>
+            <th>지도 위 표시</th>
+            <th>선택 후 표시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>POI</td>
+            <td>북마크/핀형 심볼, 필요 시 live 파티 수 작은 숫자</td>
+            <td>장소명, 주소, 열린 파티 수, 파티 목록</td>
+          </tr>
+          <tr>
+            <td>좌표 기반 위치</td>
+            <td>좌표 핀 또는 임시 선택 심볼</td>
+            <td>좌표 기반 지역명, 주소 후보, 열린 파티 수, 파티 목록</td>
+          </tr>
+          <tr>
+            <td>파티가 있는 위치</td>
+            <td>기본 POI 심볼보다 강조된 live 심볼 또는 숫자</td>
+            <td>해당 위치의 live 파티 목록</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="principles">
+        <div class="principle"><strong>상호명 비노출:</strong> 지도 위에는 상호명/장소명을 기본 라벨로 계속 노출하지 않는다. 텍스트가 많아져 지도 탐색성이 떨어지는 것을 막는다.</div>
+        <div class="principle"><strong>선택 후 정보:</strong> 사용자가 심볼을 누르면 위치별 파티 목록 패널에서 장소명 또는 좌표명을 보여준다.</div>
+        <div class="principle"><strong>접근성:</strong> 화면에는 심볼만 보여도 접근성 라벨에는 장소명, 열린 파티 수, 공개/비공개 여부 요약을 포함할 수 있다.</div>
+        <div class="principle"><strong>시각 계층:</strong> 파티가 없는 일반 POI보다 live 파티가 있는 POI/좌표 심볼을 더 강하게 표시한다.</div>
       </div>
 
       <h3>지도 현재 위치 이동 버튼</h3>
@@ -789,6 +828,43 @@
         <div class="principle"><strong>버튼 위치:</strong> 지도 우측 하단의 파티 만들기 버튼과 겹치지 않는 위치에 고정한다.</div>
         <div class="principle"><strong>시각 형태:</strong> 텍스트 라벨보다 익숙한 위치/타깃 아이콘을 기본으로 하고, 접근성 라벨은 "내 위치로 이동"으로 둔다.</div>
         <div class="principle"><strong>개인정보:</strong> 내 위치 버튼은 지도 중심 이동과 주변 파티 조회에만 사용한다. 다른 사용자에게 현재 위치를 공유하지 않는다.</div>
+      </div>
+
+      <h3>내 위치 표시</h3>
+      <p>
+        지도 위 현재 위치는 사용자 본인 화면에서만 보이는 보조 표시다. 다른 사용자에게
+        공유하거나 파티 멤버 위치로 노출하지 않는다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>구현 환경</th>
+            <th>표시 방식</th>
+            <th>정책</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>웹/프로토타입</td>
+            <td>HTML5 Geolocation으로 얻은 좌표에 현재 위치 마커와 반투명 원형 Circle 오버레이를 직접 그린다.</td>
+            <td>정확도 반경이 있으면 원의 radius에 반영하고, 없으면 기본 작은 반경을 사용한다.</td>
+          </tr>
+          <tr>
+            <td>네이티브 앱</td>
+            <td>Naver Maps SDK의 LocationOverlay 사용을 우선 검토한다.</td>
+            <td>SDK가 제공하는 현재 위치 아이콘, 방향, 그림자, 원형 표시를 활용할 수 있으면 네이티브 기본 동작을 따른다.</td>
+          </tr>
+          <tr>
+            <td>권한 없음/실패</td>
+            <td>현재 위치 마커와 원을 표시하지 않는다.</td>
+            <td>지도 탐색, 현 위치로 검색, POI/좌표 선택은 계속 가능하게 유지한다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="principles">
+        <div class="principle"><strong>시각 표현:</strong> 현재 위치는 작은 점 또는 타깃형 마커와 반투명 원으로 표현한다. 파티 마커보다 시각적 우선순위가 낮아야 한다.</div>
+        <div class="principle"><strong>정확도 원:</strong> 원은 GPS 정확도 또는 대략적 위치 범위를 나타내는 용도이며, 검색 반경 1km 원과 혼동되지 않게 색상과 투명도를 다르게 둔다.</div>
+        <div class="principle"><strong>갱신:</strong> 위치가 갱신되면 마커와 원 위치만 갱신하고, 자동으로 지도를 계속 따라가지는 않는다. 사용자가 내 위치 버튼을 누를 때 지도 중심을 이동한다.</div>
       </div>
 
       <h3>지도 이동 후 현 위치로 검색</h3>

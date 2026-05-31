@@ -577,7 +577,9 @@ class HomeMapPage extends StatelessWidget {
             child: SearchMapAreaButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('현재 지도 영역의 파티를 다시 불러왔어요.')),
+                  const SnackBar(
+                    content: Text('현재 지도 중심 1km 반경의 파티를 다시 불러왔어요.'),
+                  ),
                 );
               },
             ),
@@ -596,6 +598,53 @@ class HomeMapPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class CurrentLocationOverlay extends StatelessWidget {
+  const CurrentLocationOverlay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '내 현재 위치와 대략적인 정확도 반경',
+      child: SizedBox(
+        width: 104,
+        height: 104,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 104,
+              height: 104,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: YogiColors.blue.withValues(alpha: .12),
+                border: Border.all(
+                  color: YogiColors.blue.withValues(alpha: .24),
+                ),
+              ),
+            ),
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: YogiColors.blue,
+                border: Border.all(color: Colors.white, width: 4),
+                boxShadow: [
+                  BoxShadow(
+                    color: YogiColors.ink.withValues(alpha: .18),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -806,6 +855,11 @@ class PrototypeMap extends StatelessWidget {
               ),
             ),
             if (!NaverMapConfig.hasClientId) ...[
+              const Positioned.fill(
+                child: IgnorePointer(
+                  child: Center(child: CurrentLocationOverlay()),
+                ),
+              ),
               const Positioned(
                 left: 28,
                 top: 86,
@@ -818,8 +872,8 @@ class PrototypeMap extends StatelessWidget {
               ),
               for (final poi in pois)
                 Positioned(
-                  left: constraints.maxWidth * poi.position.dx - 44,
-                  top: constraints.maxHeight * poi.position.dy - 22,
+                  left: constraints.maxWidth * poi.position.dx - 22,
+                  top: constraints.maxHeight * poi.position.dy - 48,
                   child: MapPin(
                     poi: poi,
                     focused: focusedPoi?.id == poi.id,
@@ -905,58 +959,78 @@ class MapPin extends StatelessWidget {
     return AnimatedScale(
       duration: const Duration(milliseconds: 160),
       scale: focused ? 1.08 : 1,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: onTap,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                constraints: const BoxConstraints(minWidth: 82),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: added ? YogiColors.ink : poi.tint,
-                  border: Border.all(color: Colors.white, width: 3),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(22),
-                    topRight: Radius.circular(22),
-                    bottomRight: Radius.circular(22),
-                    bottomLeft: Radius.circular(7),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: YogiColors.ink.withValues(alpha: .16),
-                      blurRadius: 18,
-                      offset: const Offset(0, 10),
+      child: Tooltip(
+        message: poi.name,
+        child: Semantics(
+          button: true,
+          label: '${poi.name} 위치, 선택하면 장소명과 열린 파티 목록 표시',
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: onTap,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: added ? YogiColors.ink : poi.tint,
+                      border: Border.all(
+                        color: focused ? YogiColors.yellow : Colors.white,
+                        width: 3,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(22),
+                        topRight: Radius.circular(22),
+                        bottomRight: Radius.circular(22),
+                        bottomLeft: Radius.circular(7),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: YogiColors.ink.withValues(alpha: .16),
+                          blurRadius: 18,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Text(
-                  poi.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    child: const Icon(
+                      Icons.bookmark,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                ),
+                  if (added)
+                    const Positioned(
+                      right: -6,
+                      top: -8,
+                      child: CircleAvatar(
+                        radius: 11,
+                        backgroundColor: YogiColors.yellow,
+                        child: Icon(
+                          Icons.check,
+                          size: 14,
+                          color: YogiColors.ink,
+                        ),
+                      ),
+                    ),
+                  if (focused)
+                    Positioned(
+                      left: 16,
+                      bottom: -5,
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                          color: YogiColors.yellow,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              if (added)
-                const Positioned(
-                  right: -6,
-                  top: -8,
-                  child: CircleAvatar(
-                    radius: 11,
-                    backgroundColor: YogiColors.yellow,
-                    child: Icon(Icons.check, size: 14, color: YogiColors.ink),
-                  ),
-                ),
-            ],
+            ),
           ),
         ),
       ),
