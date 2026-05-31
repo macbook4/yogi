@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>요기 캐릭터 쇼케이스</title>
+    <link rel="stylesheet" href="./characters.css" />
+  </head>
+  <body>
+    <header class="showcase-header">
+      <nav class="top-nav" aria-label="쇼케이스 이동">
+        <a href="./index.html">홈 비교</a>
+        <a class="is-active" href="./characters.html">캐릭터</a>
+        <a href="./motion.html">모션</a>
+      </nav>
+      <p class="eyebrow">Yogi Character Playground</p>
+      <h1>요기 캐릭터 샘플 쇼케이스</h1>
+      <p>
+        위치기반 맛집/여행 모임 앱에 붙일 수 있는 요기 캐릭터 방향을
+        다양하게 비교합니다. 카드를 누르면 오른쪽 앱 장면에 바로 적용됩니다.
+      </p>
+    </header>
+
+    <main class="showcase-layout">
+      <section class="character-board" aria-label="캐릭터 후보">
+        <div class="filter-row" aria-label="캐릭터 필터">
+          <button class="filter-chip is-active" data-filter="all">전체</button>
+          <button class="filter-chip" data-filter="guide">안내</button>
+          <button class="filter-chip" data-filter="social">소셜</button>
+          <button class="filter-chip" data-filter="reward">보상</button>
+          <button class="filter-chip" data-filter="utility">유틸</button>
+        </div>
+
+        <div class="character-grid">
+          <article class="character-card is-selected" data-character="pinny" data-group="guide">
+            <div class="character-art">
+              <div class="char char-pinny" aria-hidden="true">
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A01 · 지도 핀 버디</p>
+              <h2>피니</h2>
+              <p>주변 모임을 콕 찍어주는 대표 요기. 서비스 정체성이 가장 선명합니다.</p>
+              <div class="trait-row">
+                <span>지도</span><span>추천</span><span>기본형</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="mori" data-group="social">
+            <div class="character-art">
+              <div class="char char-mori" aria-hidden="true">
+                <span class="ear left"></span>
+                <span class="ear right"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A02 · 로컬 버디</p>
+              <h2>모리</h2>
+              <p>친구처럼 말을 거는 둥근 캐릭터. 온보딩과 알림에 강합니다.</p>
+              <div class="trait-row">
+                <span>친근</span><span>대화</span><span>통통</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="forky" data-group="guide">
+            <div class="character-art">
+              <div class="char char-forky" aria-hidden="true">
+                <span class="handle"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A03 · 맛집 스카우트</p>
+              <h2>포키</h2>
+              <p>맛집 모임의 발견감을 강화합니다. 음식 카테고리에서 확장성이 좋습니다.</p>
+              <div class="trait-row">
+                <span>맛집</span><span>큐레이션</span><span>입맛</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="packo" data-group="guide">
+            <div class="character-art">
+              <div class="char char-packo" aria-hidden="true">
+                <span class="strap left"></span>
+                <span class="strap right"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A04 · 여행 배낭</p>
+              <h2>패코</h2>
+              <p>여행 모임의 설렘을 담당합니다. 스탬프, 일정, 체크리스트에 잘 붙습니다.</p>
+              <div class="trait-row">
+                <span>여행</span><span>준비</span><span>탐험</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="compa" data-group="utility">
+            <div class="character-art">
+              <div class="char char-compa" aria-hidden="true">
+                <span class="needle"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A05 · 나침반 조수</p>
+              <h2>콤파</h2>
+              <p>위치 탐색과 길찾기 피드백에 특화된 실용형 캐릭터입니다.</p>
+              <div class="trait-row">
+                <span>탐색</span><span>방향</span><span>정확</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="stampy" data-group="reward">
+            <div class="character-art">
+              <div class="char char-stampy" aria-hidden="true">
+                <span class="stamp-mark"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A06 · 스탬프 요원</p>
+              <h2>스탬피</h2>
+              <p>참여 완료, 리뷰, 뱃지 같은 보상 순간을 귀엽게 만듭니다.</p>
+              <div class="trait-row">
+                <span>완료</span><span>리워드</span><span>수집</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="bubble" data-group="social">
+            <div class="character-art">
+              <div class="char char-bubble" aria-hidden="true">
+                <span class="tail"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A07 · 말풍선 메이트</p>
+              <h2>버블</h2>
+              <p>채팅, 매칭, 초대 메시지에 자연스럽습니다. 소셜성을 가장 잘 보여줍니다.</p>
+              <div class="trait-row">
+                <span>채팅</span><span>초대</span><span>소셜</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="character-card" data-character="spark" data-group="reward">
+            <div class="character-art">
+              <div class="char char-spark" aria-hidden="true">
+                <span class="ray one"></span>
+                <span class="ray two"></span>
+                <span class="face"></span>
+              </div>
+            </div>
+            <div class="character-copy">
+              <p class="code">A08 · 팝 스타터</p>
+              <h2>스파크</h2>
+              <p>신규 모임, 핫플, 인기 급상승 같은 순간을 크게 띄워주는 캐릭터입니다.</p>
+              <div class="trait-row">
+                <span>핫딜</span><span>인기</span><span>팝</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <aside class="preview-panel" aria-label="선택 캐릭터 앱 적용 예시">
+        <section class="phone-preview">
+          <header class="app-top">
+            <div>
+              <p class="eyebrow">성수동 근처</p>
+              <h2>요기가 발견했어요</h2>
+            </div>
+            <button aria-label="알림">!</button>
+          </header>
+
+          <section class="hero-message">
+            <div class="preview-character" aria-hidden="true"></div>
+            <div>
+              <p class="preview-name">피니</p>
+              <h3 class="preview-line">근처 모임을 콕 찍어줄게요.</h3>
+            </div>
+          </section>
+
+          <section class="map-scene" aria-label="지도 적용 예시">
+            <div class="path path-a"></div>
+            <div class="path path-b"></div>
+            <span class="map-pin food">라멘</span>
+            <span class="map-pin travel">춘천</span>
+            <span class="map-pin social">산책</span>
+            <div class="location-pulse"></div>
+          </section>
+
+          <section class="state-strip" aria-label="상태 적용 예시">
+            <article>
+              <span>빈 상태</span>
+              <strong class="empty-copy">아직 근처 모임이 없어요</strong>
+            </article>
+            <article>
+              <span>완료</span>
+              <strong class="success-copy">참여 요청을 보냈어요</strong>
+            </article>
+          </section>
+        </section>
+
+        <section class="decision-card">
+          <p class="eyebrow">추천 판단</p>
+          <h2>메인은 피니, 보조는 모리/스탬피</h2>
+          <p>
+            요기의 핵심은 위치기반 발견이므로 지도 핀 실루엣을 대표 캐릭터로 쓰고,
+            소셜/보상 순간에는 보조 캐릭터를 섞는 구조가 가장 확장성이 좋습니다.
+          </p>
+        </section>
+      </aside>
+    </main>
+
+    <script src="./characters.js"></script>
+  </body>
+</html>

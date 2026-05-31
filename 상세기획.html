@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지도 기반 파티 서비스 상세기획</title>
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface-soft: #f0eee8;
+      --text: #1d1d1f;
+      --muted: #686b70;
+      --line: #d9d5cc;
+      --green: #1d7f62;
+      --blue: #2368a2;
+      --red: #a84736;
+      --ink: #2d2a26;
+      --shadow: 0 18px 48px rgba(45, 42, 38, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
+        "Noto Sans KR", "Malgun Gothic", sans-serif;
+      line-height: 1.68;
+      letter-spacing: 0;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 56px 0 80px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 32px;
+      align-items: end;
+      padding: 44px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(34px, 6vw, 70px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 24px 0 0;
+      color: #33363a;
+      font-size: 20px;
+      line-height: 1.65;
+      max-width: 780px;
+    }
+
+    .hero-note {
+      padding: 22px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .hero-note strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .hero-note p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    nav {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0 42px;
+    }
+
+    nav a {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px;
+      color: var(--ink);
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    section {
+      margin-top: 40px;
+      padding: 38px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      color: var(--ink);
+      font-size: 30px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 30px 0 10px;
+      color: var(--ink);
+      font-size: 20px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+      margin: 12px 0 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--ink);
+      background: var(--surface-soft);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .quote {
+      margin: 22px 0 0;
+      padding: 22px 24px;
+      color: var(--ink);
+      background: #f4f8f6;
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 760;
+      line-height: 1.55;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      padding: 22px;
+      background: #fbfaf7;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      color: var(--ink);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .model {
+      margin-top: 16px;
+      padding: 18px 20px;
+      overflow-x: auto;
+      color: #24302b;
+      background: #eef4f1;
+      border: 1px solid #cbded5;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    .flow {
+      counter-reset: flow;
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .flow li {
+      counter-increment: flow;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      margin: 0;
+      padding: 14px;
+      background: #fbfaf7;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .flow li::before {
+      content: counter(flow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      color: #fff;
+      background: var(--green);
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .principles {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .principle {
+      padding: 18px 20px;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .principle strong {
+      color: var(--blue);
+    }
+
+    .warning {
+      border-left: 5px solid var(--red);
+      background: #fff7f4;
+    }
+
+    footer {
+      margin-top: 34px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        width: min(100% - 24px, 1160px);
+        padding-top: 24px;
+      }
+
+      header,
+      .grid,
+      .grid.three {
+        grid-template-columns: 1fr;
+      }
+
+      header,
+      section {
+        padding: 24px;
+      }
+
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h2 {
+        font-size: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <p class="eyebrow">Service Planning Detail Draft</p>
+        <h1>지도 기반 파티 서비스 상세기획</h1>
+        <p class="lead">
+          상위기획의 방향을 바탕으로 MVP에서 실제로 구현해야 할 화면, 상태, 정책,
+          사용자 흐름, 데이터 요구사항을 정의한다.
+        </p>
+      </div>
+      <aside class="hero-note">
+        <strong>상세기획 기준</strong>
+        <p>
+          사용자가 처음 들어와 파티를 만들고, 멤버를 모으고, 장소를 제안하고,
+          대화 안에서 결정을 끝내는 전체 루프가 끊기지 않아야 한다.
+        </p>
+      </aside>
+    </header>
+
+    <nav aria-label="문서 목차">
+      <a href="#scope">MVP 범위</a>
+      <a href="#ia">IA와 화면</a>
+      <a href="#flows">핵심 플로우</a>
+      <a href="#policy">정책과 상태</a>
+      <a href="#data">데이터/API</a>
+    </nav>
+
+    <section id="scope">
+      <h2>1. MVP 상세 범위</h2>
+      <p>
+        MVP는 특정 타깃군으로 과하게 좁히지 않고, 좌표/POI 기반 라이브 파티 경험을 먼저 검증한다.
+        사용자는 미래 약속을 관리하는 것이 아니라, 지도 위 특정 좌표에서 지금 열린 파티를
+        발견하고 입장해 채팅으로 합류하는 흐름을 경험한다.
+      </p>
+
+      <div class="quote">
+        첫 버전의 성공 기준은 "사람들이 카톡방 대신 이 파티방에서 장소를 정했는가"다.
+      </div>
+
+      <h3>라이브 파티 원칙</h3>
+      <div class="principles">
+        <div class="principle"><strong>기본 인식:</strong> 사용자는 이 서비스를 일정 관리 도구가 아니라 지금 살아 있는 파티방으로 받아들여야 한다.</div>
+        <div class="principle"><strong>시간 범위:</strong> MVP 파티는 기본적으로 오늘 또는 곧 움직일 모임을 우선한다. 사용자가 파티명에 미래 날짜를 섞어 쓰는 것은 막지 않지만, 날짜 투표나 캘린더 관리는 제공하지 않는다.</div>
+        <div class="principle"><strong>노출 방식:</strong> 홈과 파티 상세에서는 "방금 열림", "지금 논의 중", "모집 중", "집결 중"처럼 현재성이 느껴지는 상태를 우선 노출한다.</div>
+        <div class="principle"><strong>시스템 UI 킥:</strong> iOS Live Activities의 Lock Screen, Dynamic Island, compact, minimal, expanded 표현을 서비스의 핵심 UI 레퍼런스로 삼는다. 파티는 앱 안에만 있는 카드가 아니라 시스템 상단에 살아 있는 상태로 느껴져야 한다.</div>
+        <div class="principle"><strong>자동 정리:</strong> 오늘 기준 노출 기간이 지나면 파티는 지도 발견 목록에서 내려간다. 단, 그룹채팅과 파티 기록은 소멸시키지 않는다.</div>
+      </div>
+
+      <h3>오늘 우선 노출 정책</h3>
+      <div class="principles">
+        <div class="principle"><strong>지도 우선순위:</strong> 지도에서 특정 좌표나 POI를 눌렀을 때 오늘 생성됐거나 오늘 활동 중인 live 파티를 최상단에 노출한다.</div>
+        <div class="principle"><strong>미래 날짜 혼입:</strong> "7/6 저녁 ㄱㄱ"처럼 파티명에 미래 날짜가 들어가도 MVP에서는 일정 객체로 강제 변환하지 않는다. 제목 텍스트로 보존하고 내부 분석 후보로만 쌓는다.</div>
+        <div class="principle"><strong>지도 노출 만료:</strong> 파티의 map_visible_until이 지나면 지도와 위치별 파티 목록에서 더 이상 발견되지 않는다.</div>
+        <div class="principle"><strong>채팅 보존:</strong> 지도에서 내려간 파티도 참여자들의 그룹채팅 목록에는 남는다. 사용자는 채팅을 계속 열람하거나 직접 나갈 수 있다.</div>
+        <div class="principle"><strong>상태 분리:</strong> 지도 발견 상태와 그룹채팅 생존 상태를 분리한다. 지도에서 사라졌다는 것이 파티 삭제나 채팅방 삭제를 의미하지 않는다.</div>
+      </div>
+
+      <h3>포함 기능</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>영역</th>
+            <th>기능</th>
+            <th>완료 기준</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>인증/계정</td>
+            <td>카카오 로그인, 기본 프로필 설정, 선택 인증</td>
+            <td>사용자가 카카오로 가입하고 필요 시 학교/회사 등 선택 인증을 파티 접근 조건 검증에 사용한다.</td>
+          </tr>
+          <tr>
+            <td>파티</td>
+            <td>파티 생성, 즉시 입장 초대 URL, 참여 조건, 파티용 프로필</td>
+            <td>호스트가 파티를 만들고 링크를 공유하면 초대받은 사용자가 조건 확인 후 입장한다.</td>
+          </tr>
+          <tr>
+            <td>지도/파티 탐색</td>
+            <td>네이버 지도 표시, 좌표/POI 클릭, 해당 위치 파티 목록</td>
+            <td>사용자가 지도에서 특정 위치를 누르면 그 좌표 또는 POI에 생성된 라이브 파티 목록이 열린다.</td>
+          </tr>
+          <tr>
+            <td>채팅</td>
+            <td>파티별 그룹채팅, 참여 시스템 메시지, 위치 카드</td>
+            <td>사용자가 위치 기반 파티에 입장하면 채팅방에서 바로 대화와 합류가 가능하다.</td>
+          </tr>
+          <tr>
+            <td>의사결정</td>
+            <td>파티 입장, 참여 의사 표현, 채팅 합류</td>
+            <td>멤버가 해당 위치에서 열린 파티를 보고 들어갈지 결정할 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>제외 기능</h3>
+      <div class="principles">
+        <div class="principle"><strong>공개 탐색:</strong> 주변 공개 파티 피드와 추천은 2차로 미룬다.</div>
+        <div class="principle"><strong>실시간 위치:</strong> 멤버 현재 위치 공유는 개인정보 리스크가 커서 MVP에서 제외한다.</div>
+        <div class="principle"><strong>장소 후보 의사결정:</strong> 여러 장소를 후보로 올리고 투표하는 기능은 MVP에서 제외한다.</div>
+        <div class="principle"><strong>미래 일정 관리:</strong> 날짜 투표, 캘린더 연동, 반복 일정, 리마인드는 MVP에서 제외한다.</div>
+        <div class="principle"><strong>복잡한 모더레이션:</strong> 신고/차단/강퇴는 운영 정책 문서는 정의하되 MVP 구현은 최소화한다.</div>
+      </div>
+
+      <h3>초기 파티 시나리오</h3>
+      <p>
+        파티 제목은 사용자의 실제 목적이 바로 드러나는 문장형 제목을 기본으로 한다.
+        MVP의 파티는 "어디에서 무엇을 같이 할 사람을 구하는가"를 먼저 보여준다.
+        지도는 후보 장소를 정하는 도구가 아니라, 위치에 붙은 라이브 파티를 발견하는
+        진입점이다.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>대학생 시나리오</h3>
+          <ul>
+            <li>코르티스 공연 보러갈 코어 3명 구해요</li>
+            <li>같이 가평 놀러가실분</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>직장인 시나리오</h3>
+          <ul>
+            <li>맛커 탐방</li>
+            <li>샤이니 콘서트 2명</li>
+            <li>여의도 불꽃축제 2명</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>내부 분류 후보</h3>
+      <p>
+        MVP 화면에서는 사용자가 유형을 선택하지 않는다. 사용자는 지도에서 좌표 또는 POI를
+        선택해 그 위치에 파티를 만들고, 파티 제목을 쓴다. 아래 분류는 추천, 검색, 회고 리포트, 공개 피드
+        고도화를 위해 내부적으로 추론하거나 운영 태깅으로 쌓는 값이다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>내부 분류</th>
+            <th>대표 제목</th>
+            <th>쌓아야 할 POI 맥락</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>공연/콘서트</td>
+            <td>코르티스 공연 보러갈 코어 3명 구해요, 샤이니 콘서트 2명</td>
+            <td>공연장, 사전 모임 장소, 뒤풀이 장소, 귀가 동선</td>
+          </tr>
+          <tr>
+            <td>여행/나들이</td>
+            <td>같이 가평 놀러가실분</td>
+            <td>집결지, 이동 경로, 식당/카페 후보, 숙소 또는 목적지</td>
+          </tr>
+          <tr>
+            <td>맛집/카페 탐방</td>
+            <td>맛커 탐방</td>
+            <td>후보 매장, 웨이팅 대안, 2차 장소</td>
+          </tr>
+          <tr>
+            <td>축제/행사</td>
+            <td>여의도 불꽃축제 2명</td>
+            <td>관람 위치, 집결지, 근처 편의점/화장실/귀가 지점</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="ia">
+      <h2>2. IA와 화면 구성</h2>
+      <p>
+        서비스의 첫 화면은 빈 지도나 기능 소개가 아니라, 사용자가 바로 움직일 수 있는
+        파티 맥락을 보여줘야 한다.
+      </p>
+
+      <h3>주요 정보 구조</h3>
+      <div class="model">앱
+- 온보딩/로그인
+- 홈
+  - 내 파티
+  - 빠른 파티 만들기
+  - 인증 상태
+- 파티 상세
+  - 지도
+  - 기준 위치
+  - 채팅
+  - 멤버
+  - 파티 설정
+- 위치별 파티 목록 드래그 확장 패널
+- 파티 참여/초대 URL
+- 내 프로필/인증 관리</div>
+
+      <h3>화면별 목적</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>화면</th>
+            <th>사용자 목적</th>
+            <th>핵심 컴포넌트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>온보딩</td>
+            <td>서비스에 들어올 수 있는 최소 신뢰 상태를 만든다.</td>
+            <td>카카오 로그인 버튼, 이메일 인증 진입, 위치 권한 요청</td>
+          </tr>
+          <tr>
+            <td>홈</td>
+            <td>내가 속한 파티와 지금 만들 수 있는 파티를 확인한다.</td>
+            <td>진행 중 파티 목록, 빠른 생성 버튼, 인증 배지, 빈 상태 CTA</td>
+          </tr>
+          <tr>
+            <td>파티 생성</td>
+            <td>선택한 위치에서 열 파티의 제목과 참여 조건을 정한다.</td>
+            <td>기준 위치, 파티명, 참여 조건, 즉시 입장 초대 URL 생성</td>
+          </tr>
+          <tr>
+            <td>파티 상세</td>
+            <td>파티 기준 위치와 채팅을 보며 합류 여부와 만남 맥락을 확인한다.</td>
+            <td>기준 위치 지도, 채팅 패널, 멤버 목록, 참여 상태</td>
+          </tr>
+          <tr>
+            <td>위치별 파티 목록</td>
+            <td>지도에서 선택한 위치에 열린 파티들을 확인한다.</td>
+            <td>위치명, 주소, 라이브 파티 목록, 파티 만들기, 파티 입장</td>
+          </tr>
+          <tr>
+            <td>초대 참여</td>
+            <td>파티 조건을 이해하고 파티용 프로필로 입장한다.</td>
+            <td>파티 요약, 요구 인증, 닉네임/프사 설정, 참여 버튼</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>파티 만들기 창</h3>
+      <p>
+        파티 만들기는 지도에서 좌표나 POI를 누른 뒤 열리는 바텀시트 또는 모달이다.
+        프로토타입에서도 이 창을 반드시 거쳐야 하며, 생성 완료 후 곧바로 그룹채팅으로
+        넘기지 않고 파티장이 다음 행동을 선택하게 한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>단계</th>
+            <th>입력/표시 항목</th>
+            <th>정책</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. 기준 위치 확인</td>
+            <td>장소명 또는 좌표명, 주소, 지도 미니 프리뷰</td>
+            <td>지도에서 선택한 위치를 기본값으로 고정한다. MVP에서는 생성 중 위치 변경을 제공하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>2. 파티명 입력</td>
+            <td>파티 제목, 추천 제목, 글자 수 카운터</td>
+            <td>제목은 필수다. 예: 샤이니 콘서트 2명, 같이 가평 놀러가실분, 여의도 불꽃축제 2명.</td>
+          </tr>
+          <tr>
+            <td>3. 공개/비공개 설정</td>
+            <td>공개파티, 비공개파티</td>
+            <td>공개파티는 지도 목록에서 즉시 입장 가능하다. 비공개파티는 승인, 비밀번호, 즉시 입장 초대 URL 중 허용 방식을 정한다.</td>
+          </tr>
+          <tr>
+            <td>4. 접근 조건 설정</td>
+            <td>제한 없음, 내가 인증한 대학교만 허용, 직장 인증 사용자만 허용</td>
+            <td>공개/비공개와 별개로 적용된다. 사용자가 조건을 만족하지 않으면 입장 전 인증 안내를 보여준다.</td>
+          </tr>
+          <tr>
+            <td>5. 파티용 프로필 확인</td>
+            <td>닉네임, 프로필 이미지</td>
+            <td>계정 신원과 파티 프로필은 분리한다. 기본 프로필을 쓰되 파티별 수정이 가능하다.</td>
+          </tr>
+          <tr>
+            <td>6. 생성 완료</td>
+            <td>파티명, 기준 위치, 현재 입장 인원 1명, 초대 URL, 채팅 열기 버튼</td>
+            <td>생성 직후 Live Activity형 캡슐을 보여준다. 파티장은 채팅으로 이동하거나 초대 URL을 공유하거나 지도 목록으로 돌아갈 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>파티 상세 화면 기본 레이아웃</h3>
+      <div class="grid">
+        <div class="card">
+          <h3>지도 중심 영역</h3>
+          <ul>
+            <li>네이버 지도 전체 영역</li>
+            <li>POI 또는 좌표별 라이브 파티 수 표시</li>
+            <li>사용자가 누른 위치의 드래그 확장 패널 표시</li>
+            <li>현재 위치 주변의 활성 파티 밀도 표시</li>
+            <li>파티 만들기 버튼</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>위치별 파티 영역</h3>
+          <ul>
+            <li>위치 패널: 장소명, 주소, 현재 열린 파티 수</li>
+            <li>파티 카드: 제목, 멤버 수, 생성 시각, 인증 조건 여부</li>
+            <li>파티 입장 전 미리보기: 제목, 호스트, 현재 대화 상태 요약</li>
+            <li>입장 후: 채팅, 멤버, 기준 위치 고정 배너, 멤버별 온라인 초록불</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>위치별 파티 목록 패널</h3>
+      <p>
+        POI 또는 좌표를 클릭하면 위치별 파티 목록 패널이 열린다. 기본은 하단에 걸친
+        작은 패널이지만, 별도 확장 버튼 없이 사용자가 위로 드래그하면 네이버 지도 앱처럼
+        자연스럽고 부드럽게 화면을 차지하는 전체 페이지 상태로 전환된다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>상태</th>
+            <th>진입/조작</th>
+            <th>화면 구성</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>collapsed panel</td>
+            <td>POI/좌표 클릭 시 기본 진입</td>
+            <td>장소명, 주소, 열린 파티 수, 상위 2~3개 파티 카드, 파티 만들기 버튼</td>
+          </tr>
+          <tr>
+            <td>expanded panel</td>
+            <td>패널을 위로 드래그</td>
+            <td>더 많은 파티 카드, 정렬/필터, 접근 조건 배지, 공개/비공개 배지</td>
+          </tr>
+          <tr>
+            <td>full page</td>
+            <td>패널을 끝까지 위로 드래그</td>
+            <td>상단 앱바, 전체 파티 목록, 위치 요약, 파티 만들기 고정 버튼</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="principles">
+        <div class="principle"><strong>확장 방식:</strong> 목록 확장을 위한 별도 버튼은 두지 않는다. 위로 드래그하는 제스처만으로 collapsed, expanded, full page 상태가 자연스럽게 이어져야 한다.</div>
+        <div class="principle"><strong>상단 컨트롤:</strong> full page 상태에서는 왼쪽 위에 &lt; 뒤로가기 버튼, 오른쪽 위에 X 닫기 버튼을 제공한다.</div>
+        <div class="principle"><strong>뒤로가기:</strong> &lt; 버튼은 full page에서 이전 패널 상태로 돌아간다. 이전 상태가 없으면 collapsed panel로 축소한다.</div>
+        <div class="principle"><strong>닫기:</strong> X 버튼은 패널을 완전히 닫고 지도 화면으로 돌아간다.</div>
+        <div class="principle"><strong>아래 드래그:</strong> full page 또는 expanded 상태에서 아래로 드래그하면 다시 collapsed panel 상태로 축소된다.</div>
+        <div class="principle"><strong>컨텍스트 유지:</strong> 확장/축소 중에도 선택한 POI, 정렬, 스크롤 위치, 파티 목록 데이터는 유지한다.</div>
+      </div>
+
+      <h3>라이브 파티 캡슐</h3>
+      <p>
+        iOS Live Activities를 핵심 레퍼런스로 삼아, 파티가 앱 밖에서도 현재 진행 중인
+        활동처럼 보이게 한다. MVP 프로토타입에서는 네이티브 구현 전이라도 동일한 정보
+        구조를 앱 상단 고정 캡슐과 잠금화면형 프리뷰로 먼저 검증한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>대상</th>
+            <th>Compact/Minimal</th>
+            <th>Expanded/Lock Screen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>파티장</td>
+            <td>파티명 축약, 현재 입장 인원, 상태 배지</td>
+            <td>파티명, 기준 위치, 현재 입장 인원, 입장 요청 수, 초대 URL 공유, 상태 변경</td>
+          </tr>
+          <tr>
+            <td>초대받은 사용자</td>
+            <td>초대받은 파티명, 즉시 입장 가능 표시</td>
+            <td>파티명, 기준 위치, 공개/비공개 여부, 초대한 사람, 입장 버튼</td>
+          </tr>
+          <tr>
+            <td>참여 멤버</td>
+            <td>파티명 축약, 현재 상태, 새 메시지 표시</td>
+            <td>파티명, 기준 위치, 현재 입장 인원, 최근 메시지, 파티 열기</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="flows">
+      <h2>3. 핵심 사용자 플로우</h2>
+
+      <h3>신규 사용자 가입</h3>
+      <ol class="flow">
+        <li>사용자가 카카오 로그인을 선택한다.</li>
+        <li>서비스가 기본 계정을 생성하고 약관 동의를 받는다.</li>
+        <li>사용자가 필요하면 학교/회사 등 선택 인증을 추가할 수 있다.</li>
+        <li>기본 닉네임과 프로필 이미지를 설정한다.</li>
+        <li>위치 권한을 요청하고 홈으로 진입한다.</li>
+      </ol>
+
+      <h3>파티 생성</h3>
+      <ol class="flow">
+        <li>사용자가 지도에서 파티를 열고 싶은 좌표 또는 POI를 누른다.</li>
+        <li>해당 위치의 파티 목록 드래그 확장 패널이 열린다.</li>
+        <li>사용자가 이 위치에 파티 만들기를 누른다.</li>
+        <li>파티명을 입력하거나 추천명을 사용한다.</li>
+        <li>파티 유형을 선택한다: 공개파티 또는 비공개파티.</li>
+        <li>비공개파티인 경우 입장 승인, 비밀번호, 초대장 즉시 입장 중 허용할 방식을 정한다.</li>
+        <li>필요한 접근 조건을 지정한다: 제한 없음, 내가 인증한 대학교만 허용, 직장 인증 사용자만 허용.</li>
+        <li>파티용 닉네임과 프로필 이미지를 확인한다.</li>
+        <li>선택한 위치에 파티와 채팅방이 생성되고 필요 시 초대장이 발급된다.</li>
+        <li>생성 완료 창에서 현재 입장 인원 1명, 초대 URL, 채팅 열기, 지도 목록으로 돌아가기를 보여준다.</li>
+        <li>지도에는 해당 위치의 라이브 파티 수가 갱신된다.</li>
+      </ol>
+
+      <h3>지도에서 파티 발견</h3>
+      <ol class="flow">
+        <li>사용자가 지도에서 특정 좌표 또는 POI를 누른다.</li>
+        <li>서비스가 해당 위치 반경 또는 POI 기준으로 생성된 active/live 파티를 조회한다.</li>
+        <li>위치별 파티 목록 드래그 확장 패널이 열린다.</li>
+        <li>사용자가 패널을 위로 드래그하면 별도 버튼 없이 자연스럽게 전체 페이지로 확장된다.</li>
+        <li>full page 상태에서는 왼쪽 위 &lt; 뒤로가기와 오른쪽 위 X 닫기를 제공한다.</li>
+        <li>사용자가 아래로 드래그하면 다시 하단 패널 상태로 축소된다.</li>
+        <li>사용자가 파티 제목, 공개/비공개 여부, 멤버 수, 생성 시각, 접근 조건을 확인한다.</li>
+        <li>입장 가능한 파티를 선택한다.</li>
+        <li>공개파티는 파티용 닉네임과 프사를 확인한 뒤 채팅방에 바로 입장한다.</li>
+        <li>비공개파티는 설정에 따라 입장 요청을 보내거나 비밀번호를 입력한다.</li>
+        <li>입장 요청 방식은 파티장 승인 전까지 대기 상태가 되고, 비밀번호 방식은 일치하면 바로 입장한다.</li>
+      </ol>
+
+      <h3>초대 URL로 파티 참여</h3>
+      <ol class="flow">
+        <li>사용자가 파티장이 만든 즉시 입장 초대 URL을 연다.</li>
+        <li>로그인하지 않은 경우 카카오 로그인으로 이동한다.</li>
+        <li>서비스가 초대장 유효성, 사용 횟수, 만료 여부, 파티 요구 인증을 확인한다.</li>
+        <li>인증이 부족하면 필요한 인증 절차를 안내한다.</li>
+        <li>사용자가 파티용 닉네임과 프사를 확인한다.</li>
+        <li>비공개파티라도 유효한 즉시 입장 초대 URL이면 승인이나 비밀번호 없이 채팅방에 자동 입장한다.</li>
+        <li>채팅에 참여 시스템 메시지가 기록된다.</li>
+      </ol>
+
+      <h3>파티 입장 후 합류</h3>
+      <ol class="flow">
+        <li>사용자가 위치 기반 파티에 입장한다.</li>
+        <li>채팅 상단에 파티 기준 위치 카드가 고정되어 보인다.</li>
+        <li>사용자가 채팅으로 참여 의사를 밝힌다.</li>
+        <li>멤버들이 현재 상황, 집결 여부, 이동 여부를 대화한다.</li>
+        <li>호스트가 필요하면 파티 상태를 모집 중, 이동 중, 종료로 변경한다.</li>
+        <li>파티가 종료되거나 만료 시간이 지나면 지도 목록에서 내려간다.</li>
+      </ol>
+    </section>
+
+    <section id="policy">
+      <h2>4. 정책, 권한, 상태값</h2>
+
+      <h3>파티 접근 정책</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>파티 유형</th>
+            <th>입장 가능 조건</th>
+            <th>MVP 처리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>public</td>
+            <td>로그인 사용자는 파티 목록에서 바로 입장 가능</td>
+            <td>지도에서 발견한 파티의 즉시 합류 경험을 만드는 기본 공개 유형이다.</td>
+          </tr>
+          <tr>
+            <td>private</td>
+            <td>입장 요청 후 파티장 승인 시 입장 가능</td>
+            <td>파티장에게 승인/거절 액션을 제공하고, 요청자는 승인 대기 상태를 본다.</td>
+          </tr>
+          <tr>
+            <td>private + password</td>
+            <td>파티장이 설정한 비밀번호 입력 시 바로 입장 가능</td>
+            <td>비밀번호가 일치하면 별도 승인 없이 입장시키고, 비밀번호는 해시로만 저장한다.</td>
+          </tr>
+          <tr>
+            <td>private + instant invite URL</td>
+            <td>파티장이 만든 즉시 입장 초대 URL을 가진 사용자는 승인 없이 바로 입장 가능</td>
+            <td>초대 URL은 토큰, 만료 시간, 사용 횟수를 가지며 유효하면 비공개 파티도 즉시 입장 처리한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>접근 조건 파라미터</h3>
+      <p>
+        공개파티/비공개파티는 입장 방식이고, 인증 조건은 누가 입장할 수 있는지를 제한하는
+        별도 파라미터다. 파티장은 파티 생성 시 필요한 경우 아래 조건을 추가한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>조건</th>
+            <th>입장 가능 사용자</th>
+            <th>예시 UI 문구</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>none</td>
+            <td>공개/비공개 입장 방식만 만족하면 입장 가능</td>
+            <td>제한 없음</td>
+          </tr>
+          <tr>
+            <td>same_school</td>
+            <td>파티장이 인증한 대학교와 같은 대학교 인증을 가진 사용자</td>
+            <td>내가 인증한 대학교만 허용</td>
+          </tr>
+          <tr>
+            <td>company_verified</td>
+            <td>회사 이메일 인증을 완료한 사용자</td>
+            <td>직장 인증 사용자만 허용</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>역할별 권한</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>행동</th>
+            <th>호스트</th>
+            <th>멤버</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>파티 정보 수정</td>
+            <td>가능</td>
+            <td>불가</td>
+          </tr>
+          <tr>
+            <td>초대 URL 공유</td>
+            <td>가능</td>
+            <td>가능. 단, 비공개 파티에서는 초대장 발급 권한을 파티장이 제한할 수 있음</td>
+          </tr>
+          <tr>
+            <td>입장 요청 승인/거절</td>
+            <td>가능</td>
+            <td>불가</td>
+          </tr>
+          <tr>
+            <td>파티 기준 위치 변경</td>
+            <td>MVP에서는 불가</td>
+            <td>불가</td>
+          </tr>
+          <tr>
+            <td>파티 상태 변경</td>
+            <td>가능</td>
+            <td>불가</td>
+          </tr>
+          <tr>
+            <td>파티 종료</td>
+            <td>가능</td>
+            <td>불가</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>그룹채팅 목록 제스처</h3>
+      <p>
+        그룹채팅 목록은 카카오톡처럼 스와이프 액션을 제공한다. 제스처는 채팅방 안이 아니라
+        채팅방 목록 행에서만 동작한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>제스처</th>
+            <th>노출 액션</th>
+            <th>정책</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>우측으로 슬라이드</td>
+            <td>알림 끄기 / 알림 켜기</td>
+            <td>현재 채팅방의 알림 상태를 토글한다. 알림이 꺼져도 Live Activity형 진행 상태는 별도 정책에 따라 유지될 수 있다.</td>
+          </tr>
+          <tr>
+            <td>좌측으로 슬라이드</td>
+            <td>나가기</td>
+            <td>나가기 버튼을 누르면 확인 다이얼로그를 띄운다. 멤버가 "예"를 선택해야 파티에서 나간다. 호스트는 MVP에서 바로 나갈 수 없고, 파티 종료 또는 호스트 위임 안내를 보여준다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="principles">
+        <div class="principle"><strong>알림 꺼짐 표시:</strong> 채팅방별 알림을 끈 경우 그룹채팅 목록에서 파티명 왼쪽에 종 모양 음소거 아이콘을 표시한다.</div>
+        <div class="principle"><strong>아이콘 위치:</strong> 음소거 아이콘은 파티명 텍스트 바로 왼쪽에 배치하고, 파티명과 같은 행에서 작게 보여준다.</div>
+        <div class="principle"><strong>나가기 확인 문구:</strong> "정말 나가시겠습니까?"</div>
+        <div class="principle"><strong>확인 버튼:</strong> 예. 파티에서 나가고 그룹채팅 목록에서 제거한다.</div>
+        <div class="principle"><strong>취소 버튼:</strong> 아니오. 다이얼로그를 닫고 채팅방 목록으로 돌아간다.</div>
+      </div>
+
+      <h3>그룹채팅 온라인 상태 표시</h3>
+      <p>
+        그룹채팅에서는 멤버가 현재 온라인인지 초록불로 표시한다. 이는 실시간 위치 공유가
+        아니라 채팅 접속/활동 상태 표시이며, 사용자의 정확한 위치나 상세 활동 시간은 노출하지 않는다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>표시 위치</th>
+            <th>표시 방식</th>
+            <th>정책</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>채팅 메시지 아바타</td>
+            <td>프로필 이미지 하단에 작은 초록 점</td>
+            <td>현재 온라인인 멤버에게만 표시한다.</td>
+          </tr>
+          <tr>
+            <td>멤버 목록</td>
+            <td>닉네임 옆 초록 점과 "온라인" 라벨</td>
+            <td>온라인 멤버를 상단 정렬할 수 있다.</td>
+          </tr>
+          <tr>
+            <td>파티장 Live 요약</td>
+            <td>현재 입장 인원과 별도로 온라인 인원 표시</td>
+            <td>예: 5명 입장 · 3명 온라인</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="principles">
+        <div class="principle"><strong>온라인 기준:</strong> 앱이 포그라운드에 있거나, 해당 파티 채팅/Live Activity를 최근 짧은 시간 안에 활성화한 사용자를 온라인으로 본다.</div>
+        <div class="principle"><strong>오프라인 전환:</strong> 일정 시간 동안 활동 신호가 없으면 자동으로 오프라인 처리한다.</div>
+        <div class="principle"><strong>프라이버시:</strong> 마지막 접속 시각, 현재 위치, 다른 파티에서의 활동 여부는 표시하지 않는다.</div>
+      </div>
+
+      <h3>그룹채팅 시스템 메시지 표시</h3>
+      <p>
+        참여, 퇴장, 상태 변경 같은 시스템 메시지는 일반 사용자 메시지 말풍선으로 표시하지 않는다.
+        카카오톡 그룹채팅처럼 채팅 흐름 중간에 플레인한 시스템 텍스트로 표시한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>이벤트</th>
+            <th>표시 문구</th>
+            <th>표시 방식</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>파티 합류</td>
+            <td>{닉네임}님이 파티에 합류했어요!</td>
+            <td>말풍선 없이 중앙 정렬 또는 흐름 내 플레인 텍스트</td>
+          </tr>
+          <tr>
+            <td>파티 나가기</td>
+            <td>{닉네임}님이 파티를 나갔습니다.</td>
+            <td>말풍선 없이 중앙 정렬 또는 흐름 내 플레인 텍스트</td>
+          </tr>
+          <tr>
+            <td>파티 상태 변경</td>
+            <td>파티 상태가 {모집 중/집결 중/이동 중/종료}으로 변경됐어요.</td>
+            <td>말풍선 없이 플레인 텍스트, 필요 시 작은 상태 배지 포함</td>
+          </tr>
+          <tr>
+            <td>초대 URL 생성</td>
+            <td>파티장이 즉시 입장 초대 URL을 만들었어요.</td>
+            <td>파티장에게만 보이거나 채팅방 전체 노출 여부를 설정으로 제어</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="principles">
+        <div class="principle"><strong>시각 스타일:</strong> 작은 글자, 낮은 대비, 배경 없는 텍스트를 기본으로 한다. 사용자 아바타, 닉네임 헤더, 말풍선 꼬리는 사용하지 않는다.</div>
+        <div class="principle"><strong>타임라인 역할:</strong> 시스템 메시지는 파티의 주요 상태 변화를 기록하지만 대화보다 시각적 우선순위가 낮아야 한다.</div>
+      </div>
+
+      <h3>알림 설정 정책</h3>
+      <p>
+        알림 설정은 전역 카테고리 설정과 채팅방별 설정을 분리한다. 전역 카테고리가 OFF이면
+        해당 하위 설정은 UI에서 dimmed 처리해 현재 알림이 오지 않는 이유를 명확히 보여준다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>알림 분류</th>
+            <th>사용자 설정</th>
+            <th>포함 내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>그룹채팅 알림</td>
+            <td>ON/OFF</td>
+            <td>새 메시지, 멘션, 파티 내 대화 알림. OFF이면 각 채팅방의 알림 토글은 dimmed 처리한다.</td>
+          </tr>
+          <tr>
+            <td>파티초대 알림</td>
+            <td>ON/OFF</td>
+            <td>즉시 입장 초대 URL 수신, 초대 만료, 초대 거절 관련 알림.</td>
+          </tr>
+          <tr>
+            <td>입장 요청/승인 알림</td>
+            <td>ON/OFF</td>
+            <td>파티장에게 온 입장 요청, 내가 보낸 입장 요청의 승인/거절 결과.</td>
+          </tr>
+          <tr>
+            <td>시스템 알림</td>
+            <td>항상 수신</td>
+            <td>계정, 보안, 신고/제재, 인증 만료, 파티 운영에 필요한 필수 알림. OFF를 제공하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>홍보/이벤트 알림</td>
+            <td>ON/OFF</td>
+            <td>이벤트, 혜택, 추천 파티 등 마케팅성 알림.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>전역 OFF와 하위 설정 표시</h3>
+      <div class="principles">
+        <div class="principle"><strong>그룹채팅 알림 OFF:</strong> 채팅방별 알림 토글은 dimmed 처리하고 "전역 그룹채팅 알림이 꺼져 있어요" 문구를 표시한다.</div>
+        <div class="principle"><strong>파티초대 알림 OFF:</strong> 초대 관련 세부 알림 설정은 dimmed 처리한다. 단, 초대 URL 자체의 유효성 확인은 앱 진입 시 계속 수행한다.</div>
+        <div class="principle"><strong>입장 요청/승인 알림 OFF:</strong> 푸시 알림은 보내지 않지만 앱 안의 요청함/배지는 유지한다.</div>
+        <div class="principle"><strong>시스템 알림:</strong> 필수 알림이므로 dimmed된 항상 수신 상태로 보여주고 토글을 제공하지 않는다.</div>
+        <div class="principle"><strong>Live Activity 표시:</strong> 채팅 알림과 별도 설정이다. 채팅 알림을 꺼도 사용자가 허용하면 Live Activity형 파티 상태는 유지할 수 있다.</div>
+      </div>
+
+      <h3>주요 상태값</h3>
+      <div class="model">Party.status
+- active: 진행 중
+- closed: 종료됨
+
+Party.live_status
+- live: 지금 논의 중
+- cooling_down: 활동 감소 또는 종료 직후 정리 대기
+- archived: 진행 중 목록에서 내려감
+
+Party.map_visibility_status
+- visible: 지도에서 발견 가능
+- hidden: 지도에서 발견 불가, 그룹채팅은 유지
+
+Party.meetup_status
+- recruiting: 모집 중
+- gathering: 집결 중
+- moving: 이동 중
+- closed: 종료
+
+ChatMessage.type
+- text: 일반 메시지
+- system: 참여, 퇴장, 상태 변경
+- location: 기준 위치 카드
+
+ChatMessage.render_style
+- bubble: 일반 사용자 말풍선
+- plain_system: 말풍선 없는 시스템 텍스트
+- pinned_card: 기준 위치 같은 고정 카드
+
+PartyInviteBlock.status
+- active: 해당 파티 초대 수신 차단
+- cleared: 차단 해제
+
+VerifiedIdentity.status
+- pending: 인증 요청됨
+- verified: 인증 완료
+- expired: 만료
+- revoked: 철회</div>
+
+      <h3>예외 케이스</h3>
+      <div class="principles">
+        <div class="principle"><strong>같은 위치 다중 파티:</strong> 같은 POI 또는 가까운 좌표에 여러 파티가 있으면 하나의 위치별 파티 목록 패널 안에 최신 live 파티부터 정렬한다.</div>
+        <div class="principle"><strong>좌표와 POI 차이:</strong> 네이버 POI가 있으면 POI 기준으로 묶고, POI가 없는 지도 클릭은 좌표 반경 기준으로 묶는다.</div>
+        <div class="principle"><strong>인증 미충족:</strong> 파티 요약은 보여주되 멤버 상세와 채팅은 입장 전까지 노출하지 않는다.</div>
+        <div class="principle"><strong>초대 거절 3회:</strong> 같은 사용자가 동일한 파티 초대를 3번 거절하면 해당 파티의 초대를 다시 받지 않는다. 이후 파티장이 초대 URL을 보내려 해도 대상자 선택 또는 발송 단계에서 제외한다.</div>
+        <div class="principle"><strong>호스트 이탈:</strong> MVP에서는 호스트 탈퇴를 막고 파티 종료 후 나갈 수 있게 한다.</div>
+        <div class="principle warning"><strong>안전:</strong> 실명, 이메일, 카카오 계정 식별자는 파티 화면과 채팅에 직접 노출하지 않는다.</div>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2>5. 데이터와 API 요구사항</h2>
+
+      <h3>핵심 엔티티</h3>
+      <div class="model">User
+- id
+- kakao_id
+- default_display_name
+- default_profile_image_url
+- created_at
+
+UserNotificationSetting
+- user_id
+- group_chat_enabled
+- party_invite_enabled
+- join_request_enabled
+- system_required_enabled: true
+- marketing_event_enabled
+- updated_at
+
+VerifiedIdentity
+- id
+- user_id
+- type
+- provider
+- verified_email
+- organization_id
+- status
+- verified_at
+
+Organization
+- id
+- type: school | company
+- name
+- email_domain
+
+Party
+- id
+- title
+- internal_activity_type: concert | trip | food_cafe | festival | meetup | null
+- host_user_id
+- anchor_place_id
+- anchor_lat
+- anchor_lng
+- anchor_label
+- visibility: public | private
+- join_policy: instant | approval_required | password
+- password_hash
+- access_condition_type: none | same_school | company_verified
+- required_organization_id
+- status
+- live_status
+- map_visibility_status
+- meetup_status
+- current_member_count
+- online_member_count
+- pending_join_request_count
+- invite_code
+- activity_date
+- map_visible_until
+- created_at
+- expires_at
+- closed_at
+
+PartyMember
+- id
+- party_id
+- user_id
+- role
+- display_name
+- profile_image_url
+- notification_enabled
+- live_activity_enabled
+- presence_status: online | offline
+- last_presence_at
+- joined_at
+- left_at
+
+PartyJoinRequest
+- id
+- party_id
+- user_id
+- status: pending | approved | rejected | canceled
+- message
+- requested_at
+- reviewed_by_user_id
+- reviewed_at
+
+PartyInvite
+- id
+- party_id
+- party_title_snapshot
+- invite_code
+- invite_url
+- type: instant_join
+- recipient_user_id
+- created_by_user_id
+- declined_at
+- max_uses
+- used_count
+- expires_at
+- status: active | expired | revoked
+
+PartyInviteBlock
+- id
+- party_id
+- user_id
+- declined_count
+- status: active | cleared
+- blocked_at
+- cleared_at
+
+Place
+- id
+- naver_poi_id
+- name
+- address
+- lat
+- lng
+- category
+
+ChatRoom
+- id
+- party_id
+- created_at
+
+ChatMessage
+- id
+- chat_room_id
+- user_id
+- type
+- body
+- payload_json
+- created_at</div>
+
+      <h3>API 초안</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>목적</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>POST</td>
+            <td>/auth/kakao</td>
+            <td>카카오 로그인 완료 후 서비스 세션 생성</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/identities/email/request</td>
+            <td>학교/회사 등 선택 인증 이메일 코드 발송</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/identities/email/verify</td>
+            <td>이메일 인증 완료</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/me/notification-settings</td>
+            <td>전역 알림 분류별 수신 설정 조회</td>
+          </tr>
+          <tr>
+            <td>PATCH</td>
+            <td>/me/notification-settings</td>
+            <td>그룹채팅, 파티초대, 입장 요청/승인, 홍보/이벤트 알림 수신 설정 변경. 시스템 알림은 변경 불가</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties</td>
+            <td>내 파티와 그룹채팅 목록 조회. 지도에서 숨겨진 파티도 내가 참여 중이면 포함한다.</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/map/parties?lat={lat}&lng={lng}&poiId={poiId}</td>
+            <td>선택한 좌표 또는 POI에 생성된 지도 노출 가능 live 파티 목록 조회. 오늘 활동 중인 파티를 우선 정렬한다.</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties</td>
+            <td>선택한 좌표 또는 POI에 파티와 채팅방 생성</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/invite/{inviteCode}</td>
+            <td>초대받은 파티명, 파티 요약, 초대장 유효성, 입장 가능 여부 조회</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/join</td>
+            <td>공개파티 또는 유효한 즉시 입장 초대 URL 기반 입장</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/join-with-password</td>
+            <td>비공개파티 비밀번호 검증 후 즉시 입장</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/join-requests</td>
+            <td>비공개파티 입장 요청 생성</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/{partyId}/join-requests</td>
+            <td>파티장이 입장 요청 목록 조회</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/join-requests/{requestId}/approve</td>
+            <td>파티장이 입장 요청 승인</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/join-requests/{requestId}/reject</td>
+            <td>파티장이 입장 요청 거절</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/invites</td>
+            <td>비공개파티 승인 절차를 우회하는 즉시 입장 초대 URL 생성. 대상 사용자가 해당 파티 초대를 3회 거절했다면 생성 또는 발송하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/party-invites/{inviteId}/decline</td>
+            <td>초대 거절 처리. 동일 파티 초대 거절이 3회가 되면 PartyInviteBlock을 active로 만든다.</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/{partyId}/invite-blocks</td>
+            <td>파티장이 해당 파티의 초대 수신 차단 대상 목록 조회</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/{partyId}/live-summary</td>
+            <td>Live Activity 표시용 파티명, 현재 입장 인원, 온라인 인원, 입장 요청 수, 상태, 기준 위치 조회</td>
+          </tr>
+          <tr>
+            <td>PATCH</td>
+            <td>/parties/{partyId}/status</td>
+            <td>호스트가 모집 중, 집결 중, 이동 중, 종료 상태 변경</td>
+          </tr>
+          <tr>
+            <td>PATCH</td>
+            <td>/parties/{partyId}/members/me/notification</td>
+            <td>채팅방 목록 우측 스와이프에서 알림 켜기/끄기 토글</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/leave</td>
+            <td>채팅방 목록 좌측 스와이프 후 확인 다이얼로그에서 "예" 선택 시 파티 나가기. 호스트는 바로 나가기 불가 처리</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/{partyId}/members/presence</td>
+            <td>그룹채팅 멤버별 온라인/오프라인 상태 조회</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/presence/ping</td>
+            <td>클라이언트가 현재 파티에서 사용자의 온라인 상태를 갱신</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/parties/{partyId}/messages</td>
+            <td>채팅 메시지 조회</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/parties/{partyId}/messages</td>
+            <td>일반 채팅 메시지 작성</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>6. 화면 상태와 빈 상태 문구</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>홈에 파티가 없을 때</h3>
+          <p>아직 진행 중인 파티가 없습니다.</p>
+          <p>버튼: 파티 만들기</p>
+          <p>보조 액션: 초대 URL로 참여하기</p>
+        </div>
+        <div class="card">
+          <h3>선택한 위치에 파티가 없을 때</h3>
+          <p>아직 이 위치에 열린 파티가 없습니다.</p>
+          <p>버튼: 이 위치에 파티 만들기</p>
+          <p>보조 문구: 지금 여기서 같이 움직일 사람을 모아보세요.</p>
+        </div>
+        <div class="card">
+          <h3>인증이 부족할 때</h3>
+          <p>이 파티는 인증된 멤버만 참여할 수 있습니다.</p>
+          <p>버튼: 이메일 인증하기</p>
+          <p>보조 문구: 인증 정보는 파티 안에 공개되지 않습니다.</p>
+        </div>
+        <div class="card">
+          <h3>파티가 종료됐을 때</h3>
+          <p>파티가 종료되었습니다.</p>
+          <p>버튼: 지도에서 보기</p>
+          <p>보조 액션: 같은 위치의 다른 파티 보기</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7. MVP 개발 우선순위</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>우선순위</th>
+            <th>개발 단위</th>
+            <th>이유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>P0</td>
+            <td>카카오 로그인, 사용자 세션, 기본 프로필</td>
+            <td>모든 파티/채팅/인증 흐름의 기반이다.</td>
+          </tr>
+          <tr>
+            <td>P0</td>
+            <td>좌표/POI 기반 파티 생성, 즉시 입장 초대 URL, 파티 참여</td>
+            <td>지도에서 위치를 선택하고 그 위치에 파티를 여는 기본 루프다.</td>
+          </tr>
+          <tr>
+            <td>P0</td>
+            <td>지도 클릭, 위치별 파티 목록, 파티 입장</td>
+            <td>특정 좌표에서 열린 라이브 파티를 발견하는 핵심 차별점이다.</td>
+          </tr>
+          <tr>
+            <td>P0</td>
+            <td>그룹채팅과 위치/참여 시스템 메시지</td>
+            <td>파티가 살아 있다는 느낌을 만드는 핵심 경험이다.</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>선택 인증과 인증 조건 입장</td>
+            <td>파티 성격에 맞는 신뢰와 소속감을 만든다.</td>
+          </tr>
+          <tr>
+            <td>P1</td>
+            <td>파티 상태 변경: 모집 중, 집결 중, 이동 중, 종료</td>
+            <td>위치 기반 파티의 현재 상황을 빠르게 파악하게 한다.</td>
+          </tr>
+          <tr>
+            <td>P2</td>
+            <td>신고, 차단, 강퇴, 인증 만료</td>
+            <td>운영 안정성을 위해 필요하지만 초기 검증 이후 확장한다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>8. 1차 MVP 의사결정</h2>
+      <div class="principles">
+        <div class="principle"><strong>첫 MVP 타깃:</strong> 특정 집단으로 과하게 좁히지 않는다. 공연, 여행, 맛집 탐방, 축제, 번개 약속처럼 위치와 현재성이 강한 소규모 모임 전반을 대상으로 검증한다.</div>
+        <div class="principle"><strong>대표 사용 시나리오:</strong> 사용자가 특정 위치에 열린 파티를 발견하거나 직접 만들고, 공개/비공개 입장 조건에 따라 채팅으로 합류하는 상황을 1차 유스케이스로 둔다.</div>
+        <div class="principle"><strong>시간성 포지션:</strong> 초반 사용자는 이 서비스를 미래 약속을 쌓아두는 캘린더가 아니라 지금 살아 있는 파티방으로 인식해야 한다. MVP에서는 오늘 또는 곧 움직이는 파티를 기본값으로 설계한다.</div>
+        <div class="principle"><strong>핵심 UI 킥:</strong> 서비스의 차별점은 Live Activities처럼 앱 밖에서도 파티가 살아 있는 상태로 느껴지는 UI다. 파티장은 현재 입장 인원과 입장 요청 수를 보고, 초대받은 사용자는 초대받은 파티명을 먼저 확인한다.</div>
+        <div class="principle"><strong>MVP 입력 방식:</strong> 사용자는 활동 유형을 선택하지 않는다. 지도에서 좌표 또는 POI를 선택하고, 파티 제목과 공개/비공개 여부를 정한다. 활동 유형은 내부 분석 값으로만 축적한다.</div>
+        <div class="principle"><strong>입장 정책:</strong> 파티는 공개파티와 비공개파티로 나눈다. 공개파티는 즉시 입장한다. 비공개파티는 파티장 승인, 비밀번호 입력, 즉시 입장 초대 URL 중 파티장이 허용한 방식으로 입장한다.</div>
+        <div class="principle"><strong>접근 조건:</strong> 공개/비공개와 별개로 파티장은 제한 없음, 내가 인증한 대학교만 허용, 직장 인증 사용자만 허용 중 하나를 선택할 수 있다.</div>
+        <div class="principle"><strong>초대 피로도 방지:</strong> 동일 사용자가 같은 파티의 초대를 3번 거절하면 해당 파티의 초대를 더 이상 받지 않는다. 이 차단은 해당 파티에만 적용된다.</div>
+        <div class="principle"><strong>호스트 권한:</strong> 1차에서는 파티장이 입장 요청 승인/거절, 비밀번호 설정, 즉시 입장 초대 URL 생성, 파티 상태 변경, 파티 종료를 담당한다.</div>
+        <div class="principle"><strong>채팅 구현:</strong> MVP부터 실시간 WebSocket 기반으로 간다. 이 서비스에서 채팅은 부가 기능이 아니라 라이브 파티가 살아 있다는 감각을 만드는 핵심 경험이다.</div>
+        <div class="principle"><strong>지도 노출 정책:</strong> 지도에서는 오늘 활동 중인 파티를 우선 노출한다. 오늘이 지난 파티는 map_visible_until 이후 지도에서 발견되지 않지만, 참여자의 그룹채팅 목록과 채팅 기록은 유지한다.</div>
+        <div class="principle"><strong>네이버 POI 저장 정책:</strong> 우리 DB에는 naver_poi_id, 장소명, 주소, 좌표, 카테고리, 파티별 상태만 저장한다. 리뷰, 별점, 이미지 등 네이버가 소유한 풍부한 콘텐츠는 저장하지 않고 필요 시 원천 화면으로 연결한다.</div>
+        <div class="principle"><strong>조직 인증:</strong> 인증은 서비스 전체 타깃을 좁히는 장치가 아니라 파티별 접근 조건 파라미터다. 학교/회사 이메일 인증은 파티장이 필요할 때만 요구한다.</div>
+        <div class="principle"><strong>공개 범위:</strong> 1차에서 지도에는 공개파티와 비공개파티가 모두 노출될 수 있다. 단, 비공개파티는 입장 전 채팅과 멤버 상세를 제한한다.</div>
+        <div class="principle"><strong>첫 화면 전략:</strong> 가입 직후에는 현재 지도 주변의 라이브 파티와 "이 위치에 파티 만들기"를 전면에 둔다. 내 파티가 생긴 뒤부터 홈의 중심을 진행 중 파티 목록으로 바꾼다.</div>
+        <div class="principle warning"><strong>보류 결정:</strong> 미래 일정 관리, 실시간 멤버 위치, 장소 자동 추천, 반복 파티, 복잡한 조직별 추천은 MVP 검증 이후로 미룬다.</div>
+      </div>
+    </section>
+
+    <footer>
+      지도 기반 파티 서비스 상세기획 초안 · 상위기획.html 기반 · 2026-05-31
+    </footer>
+  </main>
+</body>
+</html>

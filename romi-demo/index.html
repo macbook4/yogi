@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>요기 디자인 시스템 비교 데모</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <nav class="top-nav" aria-label="데모 이동">
+        <a class="is-active" href="./index.html">홈 비교</a>
+        <a href="./characters.html">캐릭터</a>
+        <a href="./motion.html">모션</a>
+      </nav>
+      <p class="eyebrow">Yogi Design Playground</p>
+      <h1>요기 홈 방향 비교</h1>
+      <p>
+        같은 위치기반 맛집/여행 모임 서비스를 세 가지 톤으로 비교합니다.
+        각 화면의 카테고리와 참여 버튼을 눌러보세요.
+      </p>
+    </header>
+
+    <main class="comparison-grid">
+      <article class="concept">
+        <div class="concept-copy">
+          <span>A안</span>
+          <h2>Soft Local</h2>
+          <p>지도는 실용적으로, 핀과 카드만 말랑하게 만든 균형형.</p>
+        </div>
+        <section class="phone theme-soft" aria-label="Soft Local 데모">
+          <header class="app-header">
+            <div>
+              <p class="eyebrow">성수동 근처</p>
+              <h3>요기</h3>
+            </div>
+            <button class="round-button" aria-label="알림">!</button>
+          </header>
+
+          <section class="search-card" aria-label="모임 검색">
+            <div class="search-icon" aria-hidden="true"></div>
+            <input value="이번 주말에 뭐하지?" aria-label="검색어" />
+            <button>찾기</button>
+          </section>
+
+          <nav class="chip-row" aria-label="카테고리">
+            <button class="chip is-active" data-filter="all">전체</button>
+            <button class="chip" data-filter="food">맛집</button>
+            <button class="chip" data-filter="travel">여행</button>
+          </nav>
+
+          <section class="map-panel" aria-label="주변 모임 지도">
+            <div class="route route-one"></div>
+            <div class="route route-two"></div>
+            <button class="pin pin-food is-hot" data-kind="food" style="--x: 27%; --y: 34%">
+              맛집
+            </button>
+            <button class="pin pin-travel" data-kind="travel" style="--x: 67%; --y: 29%">
+              여행
+            </button>
+            <button class="pin pin-food" data-kind="food" style="--x: 54%; --y: 58%">
+              브런치
+            </button>
+            <button class="pin pin-travel is-hot" data-kind="travel" style="--x: 31%; --y: 68%">
+              당일치기
+            </button>
+            <div class="pulse" aria-hidden="true"></div>
+            <div class="yogi-badge" aria-hidden="true"><strong>Y</strong></div>
+          </section>
+
+          <section class="sheet" aria-label="추천 모임">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">
+              <div>
+                <p class="eyebrow">지금 가까운 모임</p>
+                <h4>요기가 고른 모임</h4>
+              </div>
+              <span class="count">2개</span>
+            </div>
+            <article class="meeting-card" data-kind="food">
+              <div class="meeting-art food-art" aria-hidden="true"><span></span></div>
+              <div class="meeting-content">
+                <div class="card-topline"><span class="tag food">맛집</span><span>450m</span></div>
+                <h5>성수 신상 라멘집 같이 가요</h5>
+                <p>오늘 19:30 · 3/5명</p>
+              </div>
+              <button class="join-button">참여</button>
+            </article>
+            <article class="meeting-card" data-kind="travel">
+              <div class="meeting-art travel-art" aria-hidden="true"><span></span></div>
+              <div class="meeting-content">
+                <div class="card-topline"><span class="tag travel">여행</span><span>1.2km</span></div>
+                <h5>춘천 당일치기 사진 산책</h5>
+                <p>토요일 09:00 · 2/4명</p>
+              </div>
+              <button class="join-button">참여</button>
+            </article>
+          </section>
+
+          <footer class="tabbar" aria-label="하단 내비게이션">
+            <button class="is-active"><span class="tab-dot"></span>발견</button>
+            <button>모임</button>
+            <button>채팅</button>
+            <button>내 요기</button>
+          </footer>
+          <div class="toast" role="status" aria-live="polite">참여 요청을 보냈어요!</div>
+        </section>
+      </article>
+
+      <article class="concept">
+        <div class="concept-copy">
+          <span>B안</span>
+          <h2>Yogi Buddy</h2>
+          <p>캐릭터가 탐색을 안내하는 가장 귀여운 방향.</p>
+        </div>
+        <section class="phone theme-buddy" aria-label="Yogi Buddy 데모">
+          <header class="app-header">
+            <div>
+              <p class="eyebrow">요기가 찾는 중</p>
+              <h3>오늘의 동네</h3>
+            </div>
+            <button class="round-button" aria-label="알림">!</button>
+          </header>
+
+          <section class="buddy-hero" aria-label="캐릭터 추천">
+            <div class="mascot" aria-hidden="true">
+              <span class="ear left"></span>
+              <span class="ear right"></span>
+              <span class="eye left"></span>
+              <span class="eye right"></span>
+              <span class="mouth"></span>
+            </div>
+            <div>
+              <p class="eyebrow">근처에 재밌는 모임 발견</p>
+              <h4>라멘 먹고 산책 갈래?</h4>
+            </div>
+          </section>
+
+          <nav class="chip-row" aria-label="카테고리">
+            <button class="chip is-active" data-filter="all">전체</button>
+            <button class="chip" data-filter="food">맛집</button>
+            <button class="chip" data-filter="travel">여행</button>
+          </nav>
+
+          <section class="map-panel" aria-label="주변 모임 지도">
+            <div class="route route-one"></div>
+            <div class="route route-two"></div>
+            <button class="pin pin-food is-hot" data-kind="food" style="--x: 25%; --y: 35%">
+              냠냠
+            </button>
+            <button class="pin pin-travel" data-kind="travel" style="--x: 64%; --y: 27%">
+              슝
+            </button>
+            <button class="pin pin-food" data-kind="food" style="--x: 55%; --y: 60%">
+              브런치
+            </button>
+            <button class="pin pin-travel is-hot" data-kind="travel" style="--x: 29%; --y: 70%">
+              여행
+            </button>
+            <div class="pulse" aria-hidden="true"></div>
+          </section>
+
+          <section class="sheet compact" aria-label="추천 모임">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">
+              <div>
+                <p class="eyebrow">요기 픽</p>
+                <h4>같이 가면 재밌을 모임</h4>
+              </div>
+              <span class="count">2개</span>
+            </div>
+            <article class="meeting-card" data-kind="food">
+              <div class="meeting-art food-art" aria-hidden="true"><span></span></div>
+              <div class="meeting-content">
+                <div class="card-topline"><span class="tag food">맛집</span><span>450m</span></div>
+                <h5>라멘집 오픈런</h5>
+                <p>오늘 19:30 · 3/5명</p>
+              </div>
+              <button class="join-button">찜</button>
+            </article>
+            <article class="meeting-card" data-kind="travel">
+              <div class="meeting-art travel-art" aria-hidden="true"><span></span></div>
+              <div class="meeting-content">
+                <div class="card-topline"><span class="tag travel">여행</span><span>1.2km</span></div>
+                <h5>춘천 사진 산책</h5>
+                <p>토요일 09:00 · 2/4명</p>
+              </div>
+              <button class="join-button">찜</button>
+            </article>
+          </section>
+          <footer class="tabbar" aria-label="하단 내비게이션">
+            <button class="is-active"><span class="tab-dot"></span>발견</button>
+            <button>모임</button>
+            <button>채팅</button>
+            <button>내 요기</button>
+          </footer>
+          <div class="toast" role="status" aria-live="polite">요기가 콕 찍어뒀어요!</div>
+        </section>
+      </article>
+
+      <article class="concept">
+        <div class="concept-copy">
+          <span>C안</span>
+          <h2>Pop Cards</h2>
+          <p>지도보다 추천 카드와 빠른 선택을 강하게 보여주는 방향.</p>
+        </div>
+        <section class="phone theme-pop" aria-label="Pop Cards 데모">
+          <header class="app-header">
+            <div>
+              <p class="eyebrow">이번 주말 추천</p>
+              <h3>요기</h3>
+            </div>
+            <button class="round-button" aria-label="알림">!</button>
+          </header>
+
+          <section class="spotlight" aria-label="대표 추천">
+            <p class="eyebrow">가장 많이 보는 모임</p>
+            <h4>성수 라멘 투어</h4>
+            <p>450m · 오늘 저녁 · 맛집</p>
+            <button class="join-button">바로 참여</button>
+          </section>
+
+          <nav class="chip-row" aria-label="카테고리">
+            <button class="chip is-active" data-filter="all">전체</button>
+            <button class="chip" data-filter="food">맛집</button>
+            <button class="chip" data-filter="travel">여행</button>
+          </nav>
+
+          <section class="mini-map" aria-label="간단 지도">
+            <button class="pin pin-food is-hot" data-kind="food" style="--x: 20%; --y: 32%">맛집</button>
+            <button class="pin pin-travel" data-kind="travel" style="--x: 67%; --y: 34%">여행</button>
+            <div class="pulse" aria-hidden="true"></div>
+          </section>
+
+          <section class="card-stack" aria-label="추천 모임">
+            <div class="sheet-title">
+              <div>
+                <p class="eyebrow">빠른 선택</p>
+                <h4>취향에 맞는 모임</h4>
+              </div>
+              <span class="count">2개</span>
+            </div>
+            <article class="meeting-card large" data-kind="food">
+              <div class="meeting-content">
+                <div class="card-topline"><span class="tag food">맛집</span><span>450m</span></div>
+                <h5>성수 신상 라멘집 같이 가요</h5>
+                <p>오늘 19:30 · 3/5명</p>
+              </div>
+              <button class="join-button">참여</button>
+            </article>
+            <article class="meeting-card large" data-kind="travel">
+              <div class="meeting-content">
+                <div class="card-topline"><span class="tag travel">여행</span><span>1.2km</span></div>
+                <h5>춘천 당일치기 사진 산책</h5>
+                <p>토요일 09:00 · 2/4명</p>
+              </div>
+              <button class="join-button">참여</button>
+            </article>
+          </section>
+          <footer class="tabbar" aria-label="하단 내비게이션">
+            <button class="is-active"><span class="tab-dot"></span>발견</button>
+            <button>모임</button>
+            <button>채팅</button>
+            <button>내 요기</button>
+          </footer>
+          <div class="toast" role="status" aria-live="polite">참여 요청을 보냈어요!</div>
+        </section>
+      </article>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
