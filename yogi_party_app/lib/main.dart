@@ -546,7 +546,12 @@ class HomeMapPage extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             child: Column(
               children: [
-                AppTopBar(livePartyCount: partiesAtFocusedPoi.length),
+                AppTopBar(
+                  livePartyCount: partiesAtFocusedPoi.length,
+                  focusedPoi: focusedPoi,
+                  onCreateParty: onCreateParty,
+                  onOpenCreatedParty: onOpenCreatedParty,
+                ),
                 const SizedBox(height: 10),
                 const LivePartyCapsule(),
                 const Spacer(),
@@ -675,9 +680,48 @@ class CurrentLocationMapButton extends StatelessWidget {
 }
 
 class AppTopBar extends StatelessWidget {
-  const AppTopBar({super.key, required this.livePartyCount});
+  const AppTopBar({
+    super.key,
+    required this.livePartyCount,
+    required this.focusedPoi,
+    required this.onCreateParty,
+    required this.onOpenCreatedParty,
+  });
 
   final int livePartyCount;
+  final PartyPoi? focusedPoi;
+  final LiveParty Function(
+    PartyPoi poi, {
+    required String title,
+    required String visibility,
+    required String joinPolicy,
+    required String accessLabel,
+    required String displayName,
+    required IconData profileIcon,
+  })
+  onCreateParty;
+  final ValueChanged<LiveParty> onOpenCreatedParty;
+
+  void _handleCreateTap(BuildContext context) {
+    final poi = focusedPoi;
+    if (poi == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('지도에서 파티를 만들 위치를 먼저 선택해주세요.')),
+      );
+      return;
+    }
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PartyCreateModal(
+        poi: poi,
+        onCreateParty: onCreateParty,
+        onOpenCreatedParty: onOpenCreatedParty,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -708,7 +752,13 @@ class AppTopBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        CircleIconButton(icon: Icons.add, label: '파티 만들기'),
+        CircleIconButton(
+          icon: Icons.add,
+          label: focusedPoi == null
+              ? '위치 선택 후 파티 만들기'
+              : '${focusedPoi!.name}에 파티 만들기',
+          onTap: () => _handleCreateTap(context),
+        ),
         const SizedBox(width: 8),
         StatusPill(label: livePartyCount == 0 ? '주변' : '$livePartyCount개'),
       ],
@@ -2096,6 +2146,15 @@ class PartyCreateLocationPreview extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  poi.anchorSource == 'poi' ? '기준 POI' : '기준 좌표',
+                  style: const TextStyle(
+                    color: YogiColors.mint,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
                 Text(
                   poi.name,
                   overflow: TextOverflow.ellipsis,
@@ -3588,30 +3647,41 @@ class PageHeader extends StatelessWidget {
 }
 
 class CircleIconButton extends StatelessWidget {
-  const CircleIconButton({super.key, required this.icon, required this.label});
+  const CircleIconButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
 
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: label,
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: YogiColors.peach,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFD94C39).withValues(alpha: .72),
-                offset: const Offset(0, 5),
-              ),
-            ],
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Ink(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: YogiColors.peach,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFD94C39).withValues(alpha: .72),
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white),
           ),
-          child: Icon(icon, color: Colors.white),
         ),
       ),
     );
