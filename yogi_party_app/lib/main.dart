@@ -1103,7 +1103,21 @@ class LivePartyCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              StatusPill(label: isPrivate ? '비공개' : '공개'),
+              PartyMetaIcon(
+                icon: isPrivate ? Icons.lock_outline : Icons.lock_open_outlined,
+                label: isPrivate ? '비공개파티' : '공개파티',
+              ),
+              if (party.accessLabel != '제한 없음') ...[
+                const SizedBox(width: 6),
+                PartyMetaIcon(
+                  icon: party.accessLabel.contains('직장')
+                      ? Icons.work_outline
+                      : Icons.school_outlined,
+                  label: party.accessLabel.contains('직장')
+                      ? '직장 인증 사용자만 허용'
+                      : '내가 인증한 대학교만 허용',
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 8),
@@ -1113,7 +1127,6 @@ class LivePartyCard extends StatelessWidget {
             children: [
               StatusPill(label: party.meetupStatus),
               StatusPill(label: '${party.memberCount}명'),
-              StatusPill(label: party.accessLabel),
               if (party.pendingCount > 0)
                 StatusPill(label: '요청 ${party.pendingCount}'),
             ],
@@ -1154,6 +1167,33 @@ class LivePartyCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PartyMetaIcon extends StatelessWidget {
+  const PartyMetaIcon({super.key, required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        label: label,
+        child: Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: YogiColors.line),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 17, color: YogiColors.ink),
+        ),
       ),
     );
   }
@@ -1554,6 +1594,11 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
           ),
         ),
         const SizedBox(height: 12),
+        NeighborhoodInviteList(
+          compact: true,
+          empty: party.accessLabel == '직장 인증',
+        ),
+        const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(13),
           decoration: BoxDecoration(
@@ -1615,6 +1660,160 @@ class _PartyCreateModalState extends State<PartyCreateModal> {
       ],
     );
   }
+}
+
+class NeighborhoodInviteList extends StatefulWidget {
+  const NeighborhoodInviteList({
+    super.key,
+    this.compact = false,
+    this.empty = false,
+  });
+
+  final bool compact;
+  final bool empty;
+
+  @override
+  State<NeighborhoodInviteList> createState() => _NeighborhoodInviteListState();
+}
+
+class _NeighborhoodInviteListState extends State<NeighborhoodInviteList> {
+  final Set<String> _invited = {};
+
+  static const _candidates = [
+    _InviteCandidate(name: '수빈', area: '성수2가 · 최근 온라인', online: true),
+    _InviteCandidate(name: '도윤', area: '뚝섬 생활권 · 800m', online: false),
+    _InviteCandidate(name: '예린', area: '성수1가 · 초대 피로도 낮음', online: true),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final candidates = widget.empty ? const <_InviteCandidate>[] : _candidates;
+    return Container(
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: YogiColors.line),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.person_add_alt_1,
+                color: YogiColors.mint,
+                size: 20,
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  widget.compact ? '동네 초대 가능 사용자' : '초대할 수 있는 동네 사용자',
+                  style: const TextStyle(
+                    color: YogiColors.ink,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (candidates.isEmpty)
+            const Text(
+              '지금 초대할 수 있는 동네 사용자가 없어요',
+              style: TextStyle(
+                color: YogiColors.muted,
+                fontWeight: FontWeight.w800,
+              ),
+            )
+          else
+            for (final candidate in candidates.take(widget.compact ? 2 : 3))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        CircleAvatar(
+                          radius: 17,
+                          backgroundColor: YogiColors.mintSoft,
+                          child: Text(
+                            candidate.name.characters.first,
+                            style: const TextStyle(
+                              color: YogiColors.ink,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        if (candidate.online)
+                          Positioned(
+                            right: -1,
+                            bottom: -1,
+                            child: Container(
+                              width: 9,
+                              height: 9,
+                              decoration: BoxDecoration(
+                                color: YogiColors.mint,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(width: 9),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            candidate.name,
+                            style: const TextStyle(fontWeight: FontWeight.w900),
+                          ),
+                          Text(
+                            candidate.area,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: YogiColors.muted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: _invited.contains(candidate.name)
+                          ? null
+                          : () => setState(() => _invited.add(candidate.name)),
+                      child: Text(
+                        _invited.contains(candidate.name) ? '완료' : '초대',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InviteCandidate {
+  const _InviteCandidate({
+    required this.name,
+    required this.area,
+    required this.online,
+  });
+
+  final String name;
+  final String area;
+  final bool online;
 }
 
 class PartyCreateLocationPreview extends StatelessWidget {
@@ -2184,7 +2383,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       builder: (_) => ParticipantProfileSheet(
         name: sender,
         role: sender == '나' ? '파티장' : '참가자',
-        accessLabel: widget.room.visibility == 'private' ? '대학교 인증' : '제한 없음',
         online: sender != '요기',
         hostMode: true,
         onRemove: sender == '나'
@@ -2194,6 +2392,32 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('$sender님을 파티에서 내보냈습니다.')),
                 );
+              },
+        onTransferHost: sender == '나'
+            ? null
+            : () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: const Text('방장 넘기기'),
+                    content: Text('$sender님에게 방장 권한을 넘길까요?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                        child: const Text('취소'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        child: const Text('넘기기'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true || !mounted) return;
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('$sender님이 방장이 되었습니다.')));
               },
       ),
     );
@@ -2205,6 +2429,20 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       backgroundColor: Colors.transparent,
       builder: (_) =>
           MembersSheet(members: _participants, onOpenProfile: _showProfile),
+    );
+  }
+
+  void _showInviteCandidates() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const SheetContainer(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [SheetHandle(), NeighborhoodInviteList()],
+        ),
+      ),
     );
   }
 
@@ -2240,6 +2478,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         foregroundColor: YogiColors.ink,
         elevation: 0,
         actions: [
+          IconButton(
+            onPressed: _showInviteCandidates,
+            icon: const Icon(Icons.person_add_alt_1_outlined),
+            tooltip: '동네 사용자 초대',
+          ),
           IconButton(
             onPressed: _showMembers,
             icon: const Icon(Icons.group_outlined),
@@ -2658,18 +2901,18 @@ class ParticipantProfileSheet extends StatelessWidget {
     super.key,
     required this.name,
     required this.role,
-    required this.accessLabel,
     required this.online,
     required this.hostMode,
     this.onRemove,
+    this.onTransferHost,
   });
 
   final String name;
   final String role;
-  final String accessLabel;
   final bool online;
   final bool hostMode;
   final VoidCallback? onRemove;
+  final VoidCallback? onTransferHost;
 
   @override
   Widget build(BuildContext context) {
@@ -2709,25 +2952,28 @@ class ParticipantProfileSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
             children: [
-              StatusPill(label: accessLabel),
-              StatusPill(label: online ? '온라인' : '오프라인'),
-              const StatusPill(label: '파티용 프로필'),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: online ? YogiColors.mint : YogiColors.line,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 7),
+              Text(
+                online ? '온라인' : '오프라인',
+                style: const TextStyle(
+                  color: YogiColors.muted,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ],
           ),
           if (hostMode) ...[
             const SizedBox(height: 16),
-            const Text(
-              '방장 관리',
-              style: TextStyle(
-                color: YogiColors.ink,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -2740,9 +2986,9 @@ class ParticipantProfileSheet extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.visibility_off_outlined),
-                    label: const Text('메시지 이력'),
+                    onPressed: onTransferHost,
+                    icon: const Icon(Icons.admin_panel_settings_outlined),
+                    label: const Text('방장 넘기기'),
                   ),
                 ),
               ],
