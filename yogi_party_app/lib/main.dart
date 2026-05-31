@@ -2603,23 +2603,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF8F5),
-      appBar: AppBar(
-        title: Text(widget.room.title, overflow: TextOverflow.ellipsis),
-        backgroundColor: const Color(0xFFEFF8F5),
-        foregroundColor: YogiColors.ink,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: _showInviteCandidates,
-            icon: const Icon(Icons.person_add_alt_1_outlined),
-            tooltip: '동네 사용자 초대',
-          ),
-          IconButton(
-            onPressed: _showMembers,
-            icon: const Icon(Icons.group_outlined),
-            tooltip: '멤버 목록',
-          ),
-        ],
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(58),
+        child: ChatRoomHeader(
+          room: widget.room,
+          onInvite: _showInviteCandidates,
+          onMembers: _showMembers,
+        ),
       ),
       body: Column(
         children: [
@@ -2733,6 +2723,94 @@ class PartyAnchorCard extends StatelessWidget {
           const SizedBox(width: 6),
           StatusPill(label: '${room.onlineCount}명 온라인'),
         ],
+      ),
+    );
+  }
+}
+
+class ChatRoomHeader extends StatelessWidget {
+  const ChatRoomHeader({
+    super.key,
+    required this.room,
+    required this.onInvite,
+    required this.onMembers,
+  });
+
+  final ChatRoom room;
+  final VoidCallback onInvite;
+  final VoidCallback onMembers;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        height: 58,
+        color: const Color(0xFFEFF8F5),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              left: 4,
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.chevron_left),
+                tooltip: '뒤로가기',
+              ),
+            ),
+            Positioned(
+              left: 86,
+              right: 86,
+              child: Center(
+                child: Text(
+                  room.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: YogiColors.ink,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 4,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${room.memberCount}',
+                    style: const TextStyle(
+                      color: YogiColors.muted,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    tooltip: '채팅방 메뉴',
+                    icon: const Icon(Icons.more_horiz),
+                    onSelected: (value) {
+                      if (value == 'invite') onInvite();
+                      if (value == 'members') onMembers();
+                      if (value == 'settings') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('파티 설정은 준비 중입니다.')),
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(value: 'members', child: Text('멤버 목록')),
+                      PopupMenuItem(value: 'invite', child: Text('동네 사용자 초대')),
+                      PopupMenuItem(value: 'settings', child: Text('파티 설정')),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
