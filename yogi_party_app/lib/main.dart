@@ -1415,14 +1415,7 @@ class LocationPartyCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        '${party.memberCount}',
-                        style: const TextStyle(
-                          color: YogiColors.muted,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                      PartyMemberCountMeta(count: party.memberCount),
                       const SizedBox(width: 5),
                       PartyMetaIcon(
                         icon: isPrivate
@@ -1504,6 +1497,37 @@ class PartyMetaIcon extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 16, color: YogiColors.muted),
+        ),
+      ),
+    );
+  }
+}
+
+class PartyMemberCountMeta extends StatelessWidget {
+  const PartyMemberCountMeta({super.key, required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: '참석중 $count명',
+      child: Semantics(
+        label: '참석중 $count명',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.person_outline, size: 15, color: YogiColors.muted),
+            const SizedBox(width: 2),
+            Text(
+              '$count',
+              style: const TextStyle(
+                color: YogiColors.muted,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
       ),
     );
