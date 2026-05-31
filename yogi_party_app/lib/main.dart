@@ -1300,7 +1300,7 @@ class _LocationPartySheetState extends State<LocationPartySheet> {
                   ...widget.parties.map(
                     (party) => Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: LivePartyCard(
+                      child: LocationPartyCard(
                         party: party,
                         onJoin: widget.onJoinParty,
                       ),
@@ -1340,22 +1340,28 @@ class _LocationPartySheetState extends State<LocationPartySheet> {
   }
 }
 
-class LivePartyCard extends StatelessWidget {
-  const LivePartyCard({super.key, required this.party, required this.onJoin});
+class LocationPartyCard extends StatelessWidget {
+  const LocationPartyCard({
+    super.key,
+    required this.party,
+    required this.onJoin,
+  });
 
   final LiveParty party;
   final ValueChanged<LiveParty> onJoin;
 
+  String get _actionLabel {
+    if (party.joined) return '열기';
+    if (party.requested) return '대기 중';
+    if (party.joinPolicy == 'password') return '비밀번호';
+    if (party.joinPolicy == 'invite_url') return '바로 참가';
+    if (party.visibility == 'private') return '참가요청';
+    return '참가';
+  }
+
   @override
   Widget build(BuildContext context) {
     final isPrivate = party.visibility == 'private';
-    final actionLabel = party.joined
-        ? '열기'
-        : party.requested
-        ? '대기 중'
-        : isPrivate
-        ? '입장 요청'
-        : '입장';
 
     return Container(
       padding: const EdgeInsets.all(13),
@@ -1373,57 +1379,64 @@ class LivePartyCard extends StatelessWidget {
               PartyProfileImage(icon: party.profileIcon, size: 38),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  party.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
-                    color: YogiColors.ink,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              PartyMetaIcon(
-                icon: isPrivate ? Icons.lock_outline : Icons.lock_open_outlined,
-                label: isPrivate ? '비공개파티' : '공개파티',
-              ),
-              if (party.accessLabel != '제한 없음') ...[
-                const SizedBox(width: 6),
-                PartyMetaIcon(
-                  icon: party.accessLabel.contains('직장')
-                      ? Icons.work_outline
-                      : Icons.school_outlined,
-                  label: party.accessLabel.contains('직장')
-                      ? '직장 인증 사용자만 허용'
-                      : '내가 인증한 대학교만 허용',
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: [
-              StatusPill(label: party.meetupStatus),
-              StatusPill(label: '${party.memberCount}명'),
-              if (party.pendingCount > 0)
-                StatusPill(label: '요청 ${party.pendingCount}'),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${party.createdAgo} · ${party.host} · ${party.lastMessage}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: YogiColors.muted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            party.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 15,
+                              color: YogiColors.ink,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${party.memberCount}',
+                          style: const TextStyle(
+                            color: YogiColors.muted,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        PartyMetaIcon(
+                          icon: isPrivate
+                              ? Icons.lock_outline
+                              : Icons.lock_open_outlined,
+                          label: isPrivate ? '비공개파티' : '공개파티',
+                        ),
+                        if (party.accessLabel != '제한 없음') ...[
+                          const SizedBox(width: 4),
+                          PartyMetaIcon(
+                            icon: party.accessLabel.contains('직장')
+                                ? Icons.work_outline
+                                : Icons.school_outlined,
+                            label: party.accessLabel.contains('직장')
+                                ? '직장 인증 사용자만 허용'
+                                : '내가 인증한 대학교만 허용',
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      '${party.createdAgo} · ${party.meetupStatus} · ${party.lastMessage}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: YogiColors.muted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 8),
@@ -1442,7 +1455,7 @@ class LivePartyCard extends StatelessWidget {
                   ),
                 ),
                 onPressed: party.requested ? null : () => onJoin(party),
-                child: Text(actionLabel),
+                child: Text(_actionLabel),
               ),
             ],
           ),
@@ -1465,14 +1478,13 @@ class PartyMetaIcon extends StatelessWidget {
       child: Semantics(
         label: label,
         child: Container(
-          width: 30,
-          height: 30,
+          width: 24,
+          height: 24,
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: YogiColors.line),
-            borderRadius: BorderRadius.circular(10),
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, size: 17, color: YogiColors.ink),
+          child: Icon(icon, size: 16, color: YogiColors.muted),
         ),
       ),
     );
@@ -1609,7 +1621,7 @@ class LocationPartyFullPage extends StatelessWidget {
           for (final party in parties)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: LivePartyCard(party: party, onJoin: onJoinParty),
+              child: LocationPartyCard(party: party, onJoin: onJoinParty),
             ),
         ],
       ),
