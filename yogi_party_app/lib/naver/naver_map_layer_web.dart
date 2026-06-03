@@ -747,6 +747,9 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
     final height = focused ? 54 : 48;
     final label = _escapeHtml(poi.name as String);
     final id = _escapeJsString(poi.id as String);
+    final animation = focused
+        ? 'animation:yogi-pin-hop 620ms cubic-bezier(.2,1.45,.28,1) both;'
+        : '';
     return _htmlMarkerIcon(
       content:
           '''
@@ -756,7 +759,7 @@ class _YogiNaverMapLayerState extends State<YogiNaverMapLayer> {
           background:$background;color:white;
           box-shadow:0 10px 18px rgba(36,50,63,.22);
           transform:translate(-50%,-100%);
-          animation:yogi-pin-hop 620ms cubic-bezier(.2,1.45,.28,1) both;
+          $animation
           display:flex;align-items:center;justify-content:center;position:relative;">
           <style>
             @keyframes yogi-pin-hop {

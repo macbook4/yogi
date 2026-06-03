@@ -981,7 +981,7 @@ class MapPin extends StatelessWidget {
       duration: const Duration(milliseconds: 160),
       scale: focused ? 1.08 : 1,
       child: PinBounce(
-        playKey: '${poi.id}-$focused-$added',
+        play: focused,
         child: Tooltip(
           message: poi.name,
           child: Semantics(
@@ -3994,9 +3994,9 @@ class _MotionEntryState extends State<MotionEntry>
 }
 
 class PinBounce extends StatefulWidget {
-  const PinBounce({super.key, required this.playKey, required this.child});
+  const PinBounce({super.key, required this.play, required this.child});
 
-  final Object playKey;
+  final bool play;
   final Widget child;
 
   @override
@@ -4019,13 +4019,17 @@ class _PinBounceState extends State<PinBounce>
       parent: _controller,
       curve: YogiMotion.pinBounce,
     );
-    _controller.forward();
+    if (widget.play) {
+      _controller.forward();
+    } else {
+      _controller.value = 1;
+    }
   }
 
   @override
   void didUpdateWidget(covariant PinBounce oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.playKey != widget.playKey) {
+    if (!oldWidget.play && widget.play) {
       _controller.forward(from: 0);
     }
   }
